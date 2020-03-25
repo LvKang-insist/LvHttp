@@ -9,10 +9,9 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.www.net.HttpCreator
+import com.www.net.LvCreator
 import com.www.net.LvHttp
 import com.www.net.download.OnStateListener
 import kotlinx.android.synthetic.main.activity_main.*
@@ -25,18 +24,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        HttpCreator.init("https://www.nuli100.com/JSCM_PD/")
+        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
             .log(true)
+        for (i in 0..6) {
+            LvHttp.get("index.php")
+                .addParam("m", "App")
+                .addParam("c", "APIUsersNewCar")
+                .addParam("a", "carDetail")
+                .addParam("articleType", "0")
+                .addParam("p", i)
+                .send {
+                    println("------------：${it.value}")
+                }
+        }
 
-        LvHttp.get("index.php")
-            .addParam("m", "App")
-            .addParam("c", "APIUserIndex")
-            .addParam("a", "getStyles")
-            .send {
-                val style = it.format(GetStylesBean::class.java)
-                Toast.makeText(this, style.data.changeBottleThums, Toast.LENGTH_LONG).show()
-            }
-        init()
+
+//        init()
     }
 
     //读写权限

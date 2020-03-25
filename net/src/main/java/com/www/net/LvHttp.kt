@@ -5,8 +5,14 @@ import com.www.net.download.DownLoadLaunch
 import com.www.net.download.OnStateListener
 import com.www.net.get.GetRequest
 
+/**
+ * 请求入口类
+ */
 object LvHttp {
 
+    /**
+     * get 请求
+     */
     fun get(url: String): GetRequest {
         return GetRequest(url)
     }

@@ -32,11 +32,11 @@ class ResponseAdapterFactory(private val isLog: Boolean) : CallAdapter.Factory()
             val execute = call.execute()
             val result: Result = execute.body() as Result
             result.response = execute
-            if (isLog) {
-                Log.d("LvHttp：", result.value)
-            }
             if (!VerifyResult.verify(result.value)) {
-                throw LvNetWorkException("${ResponseAdapterFactory::class.java.name}：请求出错，请重试\n${result.value}")
+                throw LvNetWorkException("${ResponseAdapterFactory::class.java.name}：请求出错，返回结果为 null ")
+            }
+            if (isLog) {
+                Log.e("LvHttp：", result.value)
             }
             return result
         }
