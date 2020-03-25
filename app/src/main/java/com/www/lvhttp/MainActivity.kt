@@ -11,8 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.www.net.LvCreator
-import com.www.net.LvHttp
+import com.www.net.*
 import com.www.net.download.OnStateListener
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
@@ -25,21 +24,30 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         LvCreator.init("https://www.nuli100.com/JSCM_PD/")
-            .log(true)
-        for (i in 0..6) {
-            LvHttp.get("index.php")
+            .log(false)
+
+        LvHttp.get().pair({
+            val x1 = it.addUrl("index.php")
                 .addParam("m", "App")
                 .addParam("c", "APIUsersNewCar")
                 .addParam("a", "carDetail")
                 .addParam("articleType", "0")
-                .addParam("p", i)
-                .send {
-                    println("------------：${it.value}")
-                }
+                .addParam("p", 0)
+                .send()
+            val x2 = it.addUrl("index.php")
+                .addParam("m", "App")
+                .addParam("c", "APIUsersNewCar")
+                .addParam("a", "carDetail")
+                .addParam("articleType", "0")
+                .addParam("p", 1)
+                .send()
+            Pair(x1, x2)
+        }) {
+            Log.e("-----", it.first.value)
+            Log.e("+++++", it.second.value)
         }
 
-
-//        init()
+        init()
     }
 
     //读写权限

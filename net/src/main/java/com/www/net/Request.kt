@@ -38,4 +38,6 @@ abstract class Request {
     }
 
     abstract fun send(block: suspend (Result) -> Unit)
+
+    abstract fun send():Result
 }

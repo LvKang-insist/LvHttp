@@ -16,6 +16,10 @@ object LvHttp {
     fun get(url: String): GetRequest {
         return GetRequest(url)
     }
+    fun get(): GetRequest {
+        return GetRequest()
+    }
+
 
     /**
      * 文件下载
