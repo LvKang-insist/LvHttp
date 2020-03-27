@@ -14,7 +14,7 @@ class Result(val value: String) {
         try {
             return Gson().fromJson<T>(value, clazz)
         } catch (e: Exception) {
-            throw ClassCastException("${this.javaClass.name}类型转换异常")
+            throw ClassCastException("${this.javaClass.name} 类型转换异常")
         }
     }
 
@@ -25,7 +25,7 @@ class Result(val value: String) {
         try {
             return Gson().fromJson<T>(value, object : TypeToken<T>() {}.type)
         } catch (e: Exception) {
-            throw ClassCastException("${this.javaClass.name}类型转换异常")
+            throw ClassCastException("${this.javaClass.name} 类型转换异常")
         }
     }
 }

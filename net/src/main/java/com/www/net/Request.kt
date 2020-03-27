@@ -22,8 +22,10 @@ abstract class Request {
         headers[key] = value
         return this
     }
-    fun addHeader(headers: MutableMap<String, String>) {
+
+    fun addHeader(headers: MutableMap<String, String>): Request {
         this.headers.putAll(headers)
+        return this
     }
 
     /**
@@ -33,11 +35,13 @@ abstract class Request {
         params[key] = value
         return this
     }
-    fun addParam(params: MutableMap<String, Any>) {
+
+    fun addParam(params: MutableMap<String, Any>): Request {
         this.params.putAll(params)
+        return this
     }
 
     abstract fun send(block: suspend (Result) -> Unit)
 
-    abstract fun send():Result
+    abstract fun send(): Result
 }
