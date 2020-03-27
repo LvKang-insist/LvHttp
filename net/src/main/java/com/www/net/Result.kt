@@ -11,13 +11,21 @@ class Result(val value: String) {
     var response: Response<*>? = null
 
     fun <T> format(clazz: Class<T>): T {
-        return Gson().fromJson<T>(value, clazz)
+        try {
+            return Gson().fromJson<T>(value, clazz)
+        } catch (e: Exception) {
+            throw ClassCastException("${this.javaClass.name}类型转换异常")
+        }
     }
 
     /**
      * 注：必须使用内联，否则泛型会被擦除，导致无法转换
      */
     inline fun <reified T> format(value: String): T {
-        return Gson().fromJson<T>(value, object : TypeToken<T>() {}.type)
+        try {
+            return Gson().fromJson<T>(value, object : TypeToken<T>() {}.type)
+        } catch (e: Exception) {
+            throw ClassCastException("${this.javaClass.name}类型转换异常")
+        }
     }
 }
