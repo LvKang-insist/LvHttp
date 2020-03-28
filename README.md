@@ -11,7 +11,7 @@ allprojects {
 
 ```
 dependencies {
-	        implementation 'com.github.LvKang-insist:LvHttp:1.0.1'
+	        implementation 'com.github.LvKang-insist:LvHttp:1.0.4'
 	}
   
 ```
