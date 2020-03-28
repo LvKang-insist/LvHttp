@@ -4,6 +4,10 @@ import androidx.lifecycle.LifecycleOwner
 import com.www.net.download.DownLoadLaunch
 import com.www.net.download.OnStateListener
 import com.www.net.get.GetRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 /**
  * 请求入口类
@@ -16,8 +20,25 @@ object LvHttp {
     fun get(url: String): GetRequest {
         return GetRequest(url)
     }
+
     fun get(): GetRequest {
         return GetRequest()
+    }
+
+    /**
+     * 并发请求，最多可并发两次
+     */
+    fun <T1, T2> zip(
+        pair: Pair<() -> T1, () -> T2>,
+        result: (Pair<T1, T2>) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val x = GlobalScope.async { pair.first() }
+            val y = GlobalScope.async { pair.second() }
+            launch(Dispatchers.IO) {
+                result(Pair(x.await(), y.await()))
+            }
+        }
     }
 
 

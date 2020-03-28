@@ -45,7 +45,7 @@ object LvCreator {
             private fun getInterceptor(): HttpLoggingInterceptor {
                 //日志输出
                 val interceptor = HttpLoggingInterceptor()
-                interceptor.level = HttpLoggingInterceptor.Level.BODY
+                interceptor.level = HttpLoggingInterceptor.Level.BASIC
                 return interceptor
             }
         }

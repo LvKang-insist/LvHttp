@@ -1,6 +1,5 @@
 package com.www.net.get
 
-import android.util.Log
 import com.www.net.LvCreator
 import com.www.net.Request
 import com.www.net.Result
@@ -13,7 +12,9 @@ import kotlinx.coroutines.withContext
  * Get 请求
  */
 class GetRequest : Request {
+
     lateinit var url: String
+    private var mGetService: GetService = LvCreator.getRetrofit().create(GetService::class.java);
 
     constructor()
     constructor(url: String) {
@@ -37,8 +38,6 @@ class GetRequest : Request {
         }
     }
 
-
-    private var mGetService: GetService = LvCreator.getRetrofit().create(GetService::class.java);
 
     /**
      * 异步请求，返回 Result，结果是 Main 线程
