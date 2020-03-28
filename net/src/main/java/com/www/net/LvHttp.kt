@@ -35,7 +35,7 @@ object LvHttp {
         GlobalScope.launch(Dispatchers.IO) {
             val x = GlobalScope.async { pair.first() }
             val y = GlobalScope.async { pair.second() }
-            launch(Dispatchers.IO) {
+            launch(Dispatchers.Main) {
                 result(Pair(x.await(), y.await()))
             }
         }
