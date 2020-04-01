@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 class GetRequest : Request {
 
     lateinit var url: String
-    private var mGetService: GetService = LvCreator.getRetrofit().create(GetService::class.java);
+    private var mPostService: GetService = LvCreator.getRetrofit().create(GetService::class.java);
 
     constructor()
     constructor(url: String) {
@@ -24,18 +24,6 @@ class GetRequest : Request {
     fun addUrl(url: String): GetRequest {
         this.url = url
         return this
-    }
-
-    /**
-     * 多次请求
-     */
-    fun <X, Y> pair(block: suspend (GetRequest) -> Pair<X, Y>, pair: (Pair<X, Y>) -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val result = block(this@GetRequest)
-            launch(Dispatchers.Main) {
-                pair(result)
-            }
-        }
     }
 
 
@@ -64,11 +52,11 @@ class GetRequest : Request {
      */
     private fun request(): Result {
         return when {
-            params.isNotEmpty() || headers.isNotEmpty() -> mGetService.get(
+            params.isNotEmpty() || headers.isNotEmpty() -> mPostService.get(
                 url, params, headers
             )
-            params.isNotEmpty() -> mGetService.get(url, params)
-            else -> mGetService.get(url)
+            params.isNotEmpty() -> mPostService.get(url, params)
+            else -> mPostService.get(url)
         }
     }
 }

@@ -4,10 +4,13 @@ import androidx.lifecycle.LifecycleOwner
 import com.www.net.download.DownLoadLaunch
 import com.www.net.download.OnStateListener
 import com.www.net.get.GetRequest
+import com.www.net.post.PostRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * 请求入口类
@@ -23,6 +26,27 @@ object LvHttp {
 
     fun get(): GetRequest {
         return GetRequest()
+    }
+
+    /**
+     * Post 请求，表单请求体
+     */
+    fun post(url: String): PostRequest {
+        return PostRequest(url, null)
+    }
+
+    fun post(): PostRequest {
+        return PostRequest()
+    }
+
+    /**
+     * 即非表单请求体，需要传入 json 传
+     */
+    fun postRaw(url: String, raw: String): PostRequest {
+        return PostRequest(
+            url,
+            raw.toRequestBody("application/json;charset=urf-8".toMediaTypeOrNull())
+        )
     }
 
     /**

@@ -24,8 +24,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
+        LvCreator.init("https://www.wanandroid.com/")
             .log(false)
+//        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
+//            .log(false)
+
+
+        val mapof = mutableMapOf<String, Any>()
+        mapof["k"] = "Studio3"
+        LvHttp.post()
+            .addUrl("article/query/0/json")
+            .addParam(mapof)
+            .send {
+                Log.e("----------", it.value)
+            }
+//        zip()
+    }
+
+    private fun zip() {
         LvHttp.zip(Pair({
             LvHttp.get().addUrl("index.php")
                 .addParam("m", "App")
