@@ -50,10 +50,12 @@ class PostRequest : Request {
         }
         return when {
             params.isNotEmpty() && headers.isNotEmpty() -> {
-
                 mPostService.post(
                     url, headers, params
                 )
+            }
+            headers.isNotEmpty() -> {
+                mPostService.postHeader(url, headers)
             }
             else -> {
                 mPostService.post(url, params)

@@ -30,11 +30,13 @@ class MainActivity : AppCompatActivity() {
 //            .log(false)
 
 
-        val mapof = mutableMapOf<String, Any>()
-        mapof["k"] = "Studio3"
+        val map = mutableMapOf<String, String>()
+        map["Cookie"] = "loginUserName=345;token_pass=5d9b90bcb70640183e09d1e755ead823"
+
         LvHttp.post()
-            .addUrl("article/query/0/json")
-            .addParam(mapof)
+            .addUrl("lg/collect/47864/json")
+            .addParam(mutableMapOf())
+            .addHeader(map)
             .send {
                 Log.e("----------", it.value)
             }
