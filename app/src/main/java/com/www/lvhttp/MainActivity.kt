@@ -24,22 +24,33 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        LvCreator.init("https://www.wanandroid.com/")
-            .log(false)
-//        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
+//        LvCreator.init("https://www.wanandroid.com/")
 //            .log(false)
+        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
+            .log(false)
 
 
         val map = mutableMapOf<String, String>()
         map["Cookie"] = "loginUserName=345;token_pass=5d9b90bcb70640183e09d1e755ead823"
 
-        LvHttp.post()
-            .addUrl("lg/collect/47864/json")
-            .addParam(mutableMapOf())
-            .addHeader(map)
-            .send {
-                Log.e("----------", it.value)
+//        LvHttp.post()
+//            .addUrl("lg/collect/47864/json")
+//            .addParam(mutableMapOf())
+//            .addHeader(map)
+//            .send {
+//                Log.e("----------", it.value)
+//            }
+
+        LvHttp.get().addUrl("index.php")
+            .addParam("m", "App")
+            .addParam("c", "APIUsersNewCar")
+            .addParam("a", "carDetail")
+            .addParam("articleType", "0")
+            .addParam("p", 1)
+            .send({}) {
+                Toast.makeText(this,"网络错误",Toast.LENGTH_LONG).show()
             }
+
 //        zip()
     }
 
@@ -61,8 +72,10 @@ class MainActivity : AppCompatActivity() {
                 .addParam("p", 1)
                 .send()
         })) {
-            Log.e("-----", it.first.value)
-            Log.e("+++++", it.second.value)
+            if (it.first != null) {
+                var format = it.first?.format(MainActivity::class.java)
+                Log.e("000000000000", format.toString())
+            }
         }
     }
 

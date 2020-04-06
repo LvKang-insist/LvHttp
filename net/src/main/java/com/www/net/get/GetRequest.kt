@@ -1,5 +1,6 @@
 package com.www.net.get
 
+import android.util.Log
 import com.www.net.LvCreator
 import com.www.net.Request
 import com.www.net.Result
@@ -32,27 +33,39 @@ class GetRequest : Request {
      */
     override fun send(block: suspend (Result) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
-            block(
-                withContext(Dispatchers.IO) {
-                    request()
-                }
-            )
+            val result = withContext(Dispatchers.IO) {
+                request()
+            }
+            if (result != null) block(result) else Log.e("网络错误，", "请重试")
         }
     }
 
     /**
+     * 请求失败回调 error
+     */
+    override fun send(block: suspend (Result) -> Unit, error: suspend () -> Unit) {
+        GlobalScope.launch(Dispatchers.Main) {
+            val result = withContext(Dispatchers.IO) {
+                request()
+            }
+            if (result != null) block(result) else error()
+        }
+    }
+
+
+    /**
      * 同步请求
      */
-    override fun send(): Result {
+    override fun send(): Result? {
         return request()
     }
 
     /**
      * 发起请求
      */
-    private fun request(): Result {
+    private fun request(): Result? {
         return when {
-            params.isNotEmpty() || headers.isNotEmpty() -> mPostService.get(
+            params.isNotEmpty() && headers.isNotEmpty() -> mPostService.get(
                 url, params, headers
             )
             params.isNotEmpty() -> mPostService.get(url, params)

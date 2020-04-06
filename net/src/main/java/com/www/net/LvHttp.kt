@@ -54,7 +54,7 @@ object LvHttp {
      */
     fun <T1, T2> zip(
         pair: Pair<() -> T1, () -> T2>,
-        result: (Pair<T1, T2>) -> Unit
+        result: (Pair<T1?, T2?>) -> Unit
     ) {
         GlobalScope.launch(Dispatchers.IO) {
             val x = GlobalScope.async { pair.first() }

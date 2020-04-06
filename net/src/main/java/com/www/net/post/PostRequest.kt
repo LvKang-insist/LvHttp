@@ -1,5 +1,6 @@
 package com.www.net.post
 
+import android.util.Log
 import com.www.net.LvCreator
 import com.www.net.Request
 import com.www.net.Result
@@ -10,6 +11,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.RequestBody
 
 class PostRequest : Request {
+
 
     lateinit var url: String
     private var mPostService: PostService = LvCreator.getRetrofit().create(PostService::class.java);
@@ -28,23 +30,30 @@ class PostRequest : Request {
 
     override fun send(block: suspend (Result) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
-            block(
-                withContext(Dispatchers.IO) {
-
-                    request()
-                }
-            )
+            val result = withContext(Dispatchers.IO) {
+                request()
+            }
+            if (result != null) block(result) else Log.e("网络错误，", "请重试")
         }
     }
 
-    override fun send(): Result {
+    override fun send(block: suspend (Result) -> Unit, error: suspend () -> Unit) {
+        GlobalScope.launch(Dispatchers.Main) {
+            val result = withContext(Dispatchers.IO) {
+                request()
+            }
+            if (result != null) block(result) else error()
+        }
+    }
+
+    override fun send(): Result? {
         return request()
     }
 
     /**
      * 发起请求
      */
-    private fun request(): Result {
+    private fun request(): Result? {
         if (body != null) {
             return requestRaw()
         }
@@ -66,7 +75,7 @@ class PostRequest : Request {
     /**
      * 发起请求，带Body
      */
-    private fun requestRaw(): Result {
+    private fun requestRaw(): Result? {
         return when {
             headers.isNotEmpty() -> mPostService.postRaw(
                 url, headers, body!!
