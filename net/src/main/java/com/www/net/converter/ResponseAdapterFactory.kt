@@ -39,6 +39,7 @@ class ResponseAdapterFactory(private val isLog: Boolean) : CallAdapter.Factory()
             } finally {
                 return if (execute != null) {
                     val result = execute.body() as Result
+                    result.response = execute.raw()
                     if (isLog) {
                         Log.e("LvHttp：", result.value)
                     }
