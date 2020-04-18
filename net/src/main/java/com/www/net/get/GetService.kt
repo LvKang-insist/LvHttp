@@ -23,5 +23,11 @@ interface GetService {
      * 携带 header
      */
     @GET
-    fun get(@Url url: String, @QueryMap params: MutableMap<String, Any>, @HeaderMap headerMap: MutableMap<String, String>): Result?
+    fun getHeader(@Url url: String, @HeaderMap params: MutableMap<String, String>): Result?
+
+    /**
+     * 携带 header
+     */
+    @GET
+    fun getHeader(@Url url: String, @QueryMap params: MutableMap<String, Any>, @HeaderMap headerMap: MutableMap<String, String>): Result?
 }

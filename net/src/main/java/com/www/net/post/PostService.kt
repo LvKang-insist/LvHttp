@@ -33,7 +33,7 @@ interface PostService {
      */
     @FormUrlEncoded
     @POST
-    fun post(@Url url: String, @HeaderMap headerMap: MutableMap<String, String>, @FieldMap params: Map<String, Any>): Result?
+    fun postHeader(@Url url: String, @HeaderMap headerMap: MutableMap<String, String>, @FieldMap params: Map<String, Any>): Result?
 
     /**
      * 发送请求，带请求头，但是没有参数

@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 class GetRequest : Request {
 
     lateinit var url: String
-    private var mPostService: GetService = LvCreator.getRetrofit().create(GetService::class.java);
+    private var mGetService: GetService = LvCreator.getRetrofit().create(GetService::class.java);
 
     constructor()
     constructor(url: String) {
@@ -65,11 +65,18 @@ class GetRequest : Request {
      */
     private fun request(): Result? {
         return when {
-            params.isNotEmpty() && headers.isNotEmpty() -> mPostService.get(
-                url, params, headers
-            )
-            params.isNotEmpty() -> mPostService.get(url, params)
-            else -> mPostService.get(url)
+            params.isNotEmpty() && headers.isNotEmpty() ->{
+                mGetService.getHeader(url, params, headers)
+            }
+            headers.isNotEmpty() -> {
+                mGetService.getHeader(url, headers)
+            }
+            params.isNotEmpty() -> {
+                mGetService.get(url, params)
+            }
+            else ->{
+                mGetService.get(url)
+            }
         }
     }
 }

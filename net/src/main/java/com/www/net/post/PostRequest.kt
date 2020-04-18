@@ -59,7 +59,7 @@ class PostRequest : Request {
         }
         return when {
             params.isNotEmpty() && headers.isNotEmpty() -> {
-                mPostService.post(
+                mPostService.postHeader(
                     url, headers, params
                 )
             }
