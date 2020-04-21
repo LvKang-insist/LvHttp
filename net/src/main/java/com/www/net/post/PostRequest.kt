@@ -13,18 +13,17 @@ import okhttp3.RequestBody
 class PostRequest : Request {
 
 
-    lateinit var url: String
     private var mPostService: PostService = LvCreator.getRetrofit().create(PostService::class.java);
     private var body: RequestBody? = null
 
     constructor()
     constructor(url: String, body: RequestBody?) {
-        this.url = url
+        this.mUrl = url
         this.body = body
     }
 
     fun addUrl(url: String): PostRequest {
-        this.url = url
+        this.mUrl = url
         return this
     }
 
@@ -60,14 +59,14 @@ class PostRequest : Request {
         return when {
             params.isNotEmpty() && headers.isNotEmpty() -> {
                 mPostService.postHeader(
-                    url, headers, params
+                    mUrl!!, headers, params
                 )
             }
             headers.isNotEmpty() -> {
-                mPostService.postHeader(url, headers)
+                mPostService.postHeader(mUrl!!, headers)
             }
             else -> {
-                mPostService.post(url, params)
+                mPostService.post(mUrl!!, params)
             }
         }
     }
@@ -78,10 +77,10 @@ class PostRequest : Request {
     private fun requestRaw(): Result? {
         return when {
             headers.isNotEmpty() -> mPostService.postRaw(
-                url, headers, body!!
+                mUrl!!, headers, body!!
             )
             else -> {
-                mPostService.postRaw(url, body!!)
+                mPostService.postRaw(mUrl!!, body!!)
             }
         }
     }

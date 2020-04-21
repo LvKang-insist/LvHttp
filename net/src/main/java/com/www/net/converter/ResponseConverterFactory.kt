@@ -11,11 +11,11 @@ class ResponseConverterFactory : Converter.Factory() {
 
     override fun responseBodyConverter(
         type: Type, annotations: Array<Annotation>, retrofit: Retrofit
-    ): Converter<ResponseBody, *>? {
+    ): Converter<ResponseBody, Result>? {
         return ResponseConverter()
     }
 
-    internal inner class ResponseConverter : Converter<ResponseBody, Result> {
+    class ResponseConverter : Converter<ResponseBody, Result> {
         @Throws(IOException::class)
         override fun convert(value: ResponseBody): Result? {
             return Result(value.string())

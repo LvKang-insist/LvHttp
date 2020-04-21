@@ -4,6 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -16,6 +18,7 @@ import com.www.net.LvHttp
 import com.www.net.download.OnStateListener
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 //        LvCreator.init("https://www.wanandroid.com/")
 //            .log(false)
         LvCreator.init("https://www.nuli100.com/JSCM_PD/")
-            .log(false)
+            .log(true)
 
 
         val map = mutableMapOf<String, String>()
@@ -41,17 +44,44 @@ class MainActivity : AppCompatActivity() {
 //                Log.e("----------", it.value)
 //            }
 
-        LvHttp.get().addUrl("index.php")
-            .addParam("m", "App")
-            .addParam("c", "APIUsersNewCar")
-            .addParam("a", "carDetail")
-            .addParam("articleType", "0")
-            .addParam("p", 1)
-            .send({}) {
-                Toast.makeText(this,"网络错误",Toast.LENGTH_LONG).show()
-            }
+        /* LvHttp.get().addUrl("index.php")
+             .addParam("m", "App")
+             .addParam("c", "APIUsersNewCar")
+             .addParam("a", "carDetail")
+             .addParam("articleType", "0")
+             .addParam("p", 1)
+             .send({}) {
+                 Toast.makeText(this,"网络错误",Toast.LENGTH_LONG).show()
+             }*/
+
+
+        test.setOnClickListener {
+            LvHttp.postFile("index.php?m=App&c=APIPublic&a=uploadPic")
+                .setFile(getUri(this))
+//                .addParam("dir", "shops")
+                .send {
+                    Log.e("----------", it.value)
+                }
+        }
 
 //        zip()
+    }
+
+    private fun getUri(context: Context): File {
+        val bitmap = BitmapFactory.decodeResource(
+            context.resources,
+            R.drawable.android
+        )
+        val file = File(context.externalCacheDir, "shareImage.png")
+        val fos = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+        fos.flush()
+        fos.close()
+        return file
+        /*  return FileProvider.getUriForFile(
+              context,
+              "${context.packageName}.fileprovider", file
+          )*/
     }
 
     private fun zip() {

@@ -16,20 +16,24 @@ class ResponseAdapterFactory(private val isLog: Boolean) : CallAdapter.Factory()
         annotations: Array<Annotation>,
         retrofit: Retrofit
     ): CallAdapter<*, *>? {
+        Log.e("---------------------","+++++++++")
         if (getRawType(returnType) != Result::class.java) {
             return null
         }
+        Log.e("---------------------","0000000000")
         return ResponseAdapter<Result>(isLog)
     }
 
     class ResponseAdapter<R>(val isLog: Boolean) : CallAdapter<R, Result> {
 
         override fun responseType(): Type {
+            Log.e("---------------------","0000000000")
             return Result::class.java
         }
 
         @SuppressLint("LongLogTag")
         override fun adapt(call: Call<R>): Result? {
+            Log.e("0000000000","0000000000")
             var execute: Response<R>? = null
             try {
                 execute = call.execute()

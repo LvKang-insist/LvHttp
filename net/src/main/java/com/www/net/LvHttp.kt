@@ -5,6 +5,7 @@ import com.www.net.download.DownLoadLaunch
 import com.www.net.download.OnStateListener
 import com.www.net.get.GetRequest
 import com.www.net.post.PostRequest
+import com.www.net.postFile.PostFileRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -50,6 +51,13 @@ object LvHttp {
     }
 
     /**
+     * 文件上传
+     */
+    fun postFile(url: String): PostFileRequest {
+        return PostFileRequest(url)
+    }
+
+    /**
      * 并发请求，最多可并发两次
      */
     fun <T1, T2> zip(
@@ -64,7 +72,6 @@ object LvHttp {
             }
         }
     }
-
 
     /**
      * 文件下载

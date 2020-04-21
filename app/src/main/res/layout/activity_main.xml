@@ -7,6 +7,14 @@
     android:gravity="center"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="测试"
+        android:layout_marginTop="20dp"
+        android:textAllCaps="false" />
+
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/fileUrl"
         android:layout_width="match_parent"

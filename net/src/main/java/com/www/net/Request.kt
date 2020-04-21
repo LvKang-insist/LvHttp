@@ -2,6 +2,8 @@ package com.www.net
 
 abstract class Request {
 
+    var mUrl: String? = null
+
     /**
      * 头文件
      */
