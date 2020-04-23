@@ -13,6 +13,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.google.gson.Gson
 import com.www.net.LvCreator
 import com.www.net.LvHttp
 import com.www.net.download.OnStateListener
@@ -29,13 +30,13 @@ class MainActivity : AppCompatActivity() {
 
 //        LvCreator.init("https://www.wanandroid.com/")
 //            .log(false)
-        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
+        LvCreator.init("http://192.168.43.80:80/")
             .log(true)
 
-
-        val map = mutableMapOf<String, String>()
-        map["Cookie"] = "loginUserName=345;token_pass=5d9b90bcb70640183e09d1e755ead823"
-
+//        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
+//            .log(true)
+//        val map = mutableMapOf<String, String>()
+//        map["Cookie"] = "loginUserName=345;token_pass=5d9b90bcb70640183e09d1e755ead823"
 //        LvHttp.post()
 //            .addUrl("lg/collect/47864/json")
 //            .addParam(mutableMapOf())
@@ -44,25 +45,26 @@ class MainActivity : AppCompatActivity() {
 //                Log.e("----------", it.value)
 //            }
 
-        /* LvHttp.get().addUrl("index.php")
-             .addParam("m", "App")
-             .addParam("c", "APIUsersNewCar")
-             .addParam("a", "carDetail")
-             .addParam("articleType", "0")
-             .addParam("p", 1)
-             .send({}) {
-                 Toast.makeText(this,"网络错误",Toast.LENGTH_LONG).show()
-             }*/
+        //{"code":"ok","value":"789","a":"789","b":"789","c":"789"}
 
 
         test.setOnClickListener {
-            LvHttp.postFile("index.php?m=App&c=APIPublic&a=uploadPic")
+
+            LvHttp.postFile("test/updata.php")
                 .setFile(getUri(this))
-//                .addParam("dir", "shops")
+                .addParam("dir", "shops")
                 .send {
                     Log.e("----------", it.value)
                 }
+           /* LvHttp.get()
+                .addUrl("test/test.php")
+                .send {
+                    Log.e("00000", it.value)
+                }*/
+
+
         }
+
 
 //        zip()
     }
@@ -103,8 +105,8 @@ class MainActivity : AppCompatActivity() {
                 .send()
         })) {
             if (it.first != null) {
-                var format = it.first?.format(MainActivity::class.java)
-                Log.e("000000000000", format.toString())
+//                var format = it.first?.format(MainActivity::class.java)
+//                Log.e("000000000000", format.toString())
             }
         }
     }

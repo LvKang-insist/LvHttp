@@ -18,7 +18,7 @@ interface PostFileService {
      */
     @Multipart
     @POST
-    fun postFile(@Url url: String, @PartMap params: MutableMap<String, Any>, @Part file: MultipartBody.Part): Result?
+    fun postFile(@Url url: String, @QueryMap params: MutableMap<String, Any>, @Part file: MultipartBody.Part): Result?
 
 
     /**

@@ -70,7 +70,6 @@ class PostFileRequest(url: String) : Request() {
                 mPostFileService.postFileHeader(mUrl!!, headers, part)
             }
             params.isNotEmpty() -> {
-                Log.e("------------","hhhhhhhhh")
                 mPostFileService.postFile(mUrl!!, params, part)
             }
             else -> {

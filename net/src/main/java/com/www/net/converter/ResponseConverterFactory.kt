@@ -1,5 +1,6 @@
 package com.www.net.converter
 
+import android.util.Log
 import com.www.net.Result
 import okhttp3.ResponseBody
 import retrofit2.Converter
@@ -18,7 +19,8 @@ class ResponseConverterFactory : Converter.Factory() {
     class ResponseConverter : Converter<ResponseBody, Result> {
         @Throws(IOException::class)
         override fun convert(value: ResponseBody): Result? {
-            return Result(value.string())
+            val string = value.string()
+            return Result(string)
         }
     }
 }
