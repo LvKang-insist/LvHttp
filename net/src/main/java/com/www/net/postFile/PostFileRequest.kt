@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -70,7 +71,17 @@ class PostFileRequest(url: String) : Request() {
                 mPostFileService.postFileHeader(mUrl!!, headers, part)
             }
             params.isNotEmpty() -> {
-                mPostFileService.postFile(mUrl!!, params, part)
+                val paramsMap = mutableMapOf<String, RequestBody>()
+                params.forEach {
+                    paramsMap[it.key] =
+                        RequestBody.create(MediaType.parse("multipart/form-data"), it.value)
+                }
+                val fileBody = RequestBody.create(MediaType.parse("multipart/form-data"), part)
+
+                val requestFilePart = MultipartBody.Part.createFormData("", mFile!!.name, fileBody)
+
+                val filesBody = arrayOf<MultipartBody.Part>(part)
+                mPostFileService.postFile(mUrl!!, paramsMap, requestFilePart)
             }
             else -> {
                 mPostFileService.postFile(mUrl!!, part)

@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
             LvHttp.postFile("test/updata.php")
                 .setFile(getUri(this))
-                .addParam("dir", "shops")
+                .addParam("abs", "shops")
                 .send {
                     Log.e("----------", it.value)
                 }

@@ -2,6 +2,7 @@ package com.www.net.postFile
 
 import com.www.net.Result
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.*
 
 interface PostFileService {
@@ -18,7 +19,7 @@ interface PostFileService {
      */
     @Multipart
     @POST
-    fun postFile(@Url url: String, @QueryMap params: MutableMap<String, Any>, @Part file: MultipartBody.Part): Result?
+    fun postFile(@Url url: String, @PartMap params: MutableMap<String, RequestBody>, @Part vararg file: MultipartBody.Part): Result?
 
 
     /**
