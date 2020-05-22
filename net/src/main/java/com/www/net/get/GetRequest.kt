@@ -14,17 +14,13 @@ import kotlinx.coroutines.withContext
  */
 class GetRequest : Request {
 
-    lateinit var url: String
+
     private var mGetService: GetService = LvCreator.getRetrofit().create(GetService::class.java);
 
     constructor()
-    constructor(url: String) {
-        this.url = url
-    }
 
-    fun addUrl(url: String): GetRequest {
-        this.url = url
-        return this
+    constructor(url: String) {
+        mUrl = url
     }
 
 
@@ -65,17 +61,17 @@ class GetRequest : Request {
      */
     private fun request(): Result? {
         return when {
-            params.isNotEmpty() && headers.isNotEmpty() ->{
-                mGetService.getHeader(url, params, headers)
+            params.isNotEmpty() && headers.isNotEmpty() -> {
+                mGetService.getHeader(mUrl!!, params, headers)
             }
             headers.isNotEmpty() -> {
-                mGetService.getHeader(url, headers)
+                mGetService.getHeader(mUrl!!, headers)
             }
             params.isNotEmpty() -> {
-                mGetService.get(url, params)
+                mGetService.get(mUrl!!, params)
             }
-            else ->{
-                mGetService.get(url)
+            else -> {
+                mGetService.get(mUrl!!)
             }
         }
     }

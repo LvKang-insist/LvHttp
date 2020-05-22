@@ -12,7 +12,6 @@ interface PostService {
      */
     @POST
     fun postRaw(@Url url: String, @Body body: RequestBody): Result?
-
     /**
      * 携带 header
      * @Body 即非表单请求体，被body 注解的将会被 Gson 转换为json 发送到服务器

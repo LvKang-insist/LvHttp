@@ -22,10 +22,7 @@ class PostRequest : Request {
         this.body = body
     }
 
-    fun addUrl(url: String): PostRequest {
-        this.mUrl = url
-        return this
-    }
+
 
     override fun send(block: suspend (Result) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {

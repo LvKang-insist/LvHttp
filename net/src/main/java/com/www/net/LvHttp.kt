@@ -5,7 +5,8 @@ import com.www.net.download.DownLoadLaunch
 import com.www.net.download.OnStateListener
 import com.www.net.get.GetRequest
 import com.www.net.post.PostRequest
-import com.www.net.postFile.PostFileRequest
+import com.www.net.postFile.ListFileRequest
+import com.www.net.postFile.MapFileRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -50,12 +51,21 @@ object LvHttp {
         )
     }
 
+
     /**
-     * 文件上传
+     * 上传文件，文件类型为 key 对应多个 file
      */
-    fun postFile(url: String): PostFileRequest {
-        return PostFileRequest(url)
+    fun uploadListFile(url: String): ListFileRequest {
+        return ListFileRequest(url)
     }
+
+    /**
+     * 上传文件，一个 key 对应 一个 file
+     */
+    fun uploadMapFile(url: String): MapFileRequest {
+        return MapFileRequest(url)
+    }
+
 
     /**
      * 并发请求，最多可并发两次

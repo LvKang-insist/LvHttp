@@ -1,5 +1,11 @@
 package com.www.net
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
+
 abstract class Request {
 
     var mUrl: String? = null
@@ -10,11 +16,20 @@ abstract class Request {
     protected val headers by lazy {
         mutableMapOf<String, String>()
     }
+
     /**
      * 参数
      */
     protected val params by lazy {
         mutableMapOf<String, Any>()
+    }
+
+    /**
+     * 添加请求地址
+     */
+    fun addUrl(url: String): Request {
+        this.mUrl = url
+        return this
     }
 
     /**
@@ -41,6 +56,23 @@ abstract class Request {
     fun addParam(params: MutableMap<String, Any>): Request {
         this.params.putAll(params)
         return this
+    }
+
+
+    /**
+     * 返回一个新的请求体，该请求体传输此请求的内容。
+     * 类型为 File
+     */
+    protected fun createFileRequestBody(file: File): RequestBody {
+        return file.asRequestBody(MultipartBody.FORM)
+    }
+
+    /**
+     * 返回一个新的请求体，该请求体传输此请求的内容。
+     * 类型为 String
+     */
+    protected fun createStrRequestBody(str: String): RequestBody {
+        return str.toRequestBody(MultipartBody.FORM)
     }
 
     /**

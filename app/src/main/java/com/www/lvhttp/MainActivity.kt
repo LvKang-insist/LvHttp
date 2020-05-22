@@ -13,7 +13,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.google.gson.Gson
 import com.www.net.LvCreator
 import com.www.net.LvHttp
 import com.www.net.download.OnStateListener
@@ -30,39 +29,52 @@ class MainActivity : AppCompatActivity() {
 
 //        LvCreator.init("https://www.wanandroid.com/")
 //            .log(false)
-        LvCreator.init("http://192.168.43.80:80/")
-            .log(true)
-
-//        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
+//        LvCreator.init("http://192.168.43.80:80/")
 //            .log(true)
-//        val map = mutableMapOf<String, String>()
-//        map["Cookie"] = "loginUserName=345;token_pass=5d9b90bcb70640183e09d1e755ead823"
-//        LvHttp.post()
-//            .addUrl("lg/collect/47864/json")
-//            .addParam(mutableMapOf())
-//            .addHeader(map)
-//            .send {
-//                Log.e("----------", it.value)
-//            }
 
-        //{"code":"ok","value":"789","a":"789","b":"789","c":"789"}
+        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
+            .log(true)
 
 
         test.setOnClickListener {
 
-            LvHttp.postFile("test/updata.php")
-                .setFile(getUri(this))
-                .addParam("abs", "shops")
+//            LvHttp.postFile("test/updata.php")
+//                .setFile(getUri(this))
+//                .addParam("abs", "shops")
+//                .send {
+//                    Log.e("----------", it.value)
+//                }
+
+            //https://www.nuli100.com/JSCM_PD/index.php?m=App&c=Base&a=uploadPicdir=users&Filedata=FILE
+            val file = getUri(this)
+            if (file.exists()) {
+                LvHttp
+                    .uploadMapFile("index.php")
+                    .file("Filedata", file)
+                    .addParam("m", "App")
+                    .addParam("c", "Base")
+                    .addParam("a", "uploadPic")
+                    .addParam("dir", "users")
+                    .send({
+//                         https://www.nuli100.com/JSCM_PD/index.php?m=App&c=APIUsers&a=editUserPhoto&tokenId=4f9aa4a019d142dd8741ae6a0ec26d3cc0a&userPhoto=Upload/users/2020-05/5ec77db438782.jpg
+                        LvHttp.get()
+                            .addUrl("https://www.nuli100.com/JSCM_PD/index.php?m=App&c=APIUsers&a=editUserPhoto&tokenId=4f9aa4a019d142dd8741ae6a0ec26d3cc0a&userPhoto=Upload/users/2020-05/5ec77df7f348a.jpg")
+                            .send {
+//                                  {"status":1,"Filedata":{"savepath":"Upload\/users\/2020-05\/","savethumbname":"5ec77f21d07c6_thumb.jpg","savename":"5ec77f21d07c6.jpg"}}
+                            }
+
+                    }) {
+                        Toast.makeText(this, "上传失败", Toast.LENGTH_LONG).show()
+                    }
+            }
+        }
+
+        downloadButton.setOnClickListener {
+            LvHttp.get()
+                .addUrl("index.php?m=App&c=APIUsers&a=userInfo&tokenId=4f9aa4a019d142dd8741ae6a0ec26d3cc0a&userName=345&userSex=1")
                 .send {
-                    Log.e("----------", it.value)
+
                 }
-           /* LvHttp.get()
-                .addUrl("test/test.php")
-                .send {
-                    Log.e("00000", it.value)
-                }*/
-
-
         }
 
 
@@ -88,7 +100,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun zip() {
         LvHttp.zip(Pair({
-            LvHttp.get().addUrl("index.php")
+            LvHttp.get()
+                .addUrl("index.php")
                 .addParam("m", "App")
                 .addParam("c", "APIUsersNewCar")
                 .addParam("a", "carDetail")
@@ -96,7 +109,8 @@ class MainActivity : AppCompatActivity() {
                 .addParam("p", 1)
                 .send()
         }, {
-            LvHttp.get().addUrl("index.php")
+            LvHttp.get()
+                .addUrl("index.php")
                 .addParam("m", "App")
                 .addParam("c", "APIUsersNewCar")
                 .addParam("a", "carDetail")
@@ -117,6 +131,7 @@ class MainActivity : AppCompatActivity() {
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
+
     //请求状态码
     val REQUEST_PERMISSION_CODE: Int = 1;
 
