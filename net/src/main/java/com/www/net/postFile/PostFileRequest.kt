@@ -66,14 +66,6 @@ abstract class PostFileRequest(url: String) : Request() {
     protected fun createFilesParts(filesMap: MutableMap<String, File>)
             : Array<MultipartBody.Part> {
         val list = arrayListOf<MultipartBody.Part>()
-//        filesMap.forEach { list.add(it.key) }
-
-        /*val parts = Array<MultipartBody.Part>(filesMap.size) {
-            val file = filesMap[list[it]]
-            val fileBody = createFileRequestBody(file!!)
-            MultipartBody.Part.createFormData(list[it], file.name, fileBody)
-        }
-        */
 
         filesMap.forEach {
             val fileBody = createFileRequestBody(it.value)
