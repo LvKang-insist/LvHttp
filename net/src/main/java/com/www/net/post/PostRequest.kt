@@ -23,8 +23,7 @@ class PostRequest : Request {
     }
 
 
-
-    override fun send(block: suspend (Result) -> Unit) {
+    override fun send(block: (Result) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
             val result = withContext(Dispatchers.IO) {
                 request()
@@ -33,7 +32,7 @@ class PostRequest : Request {
         }
     }
 
-    override fun send(block: suspend (Result) -> Unit, error: suspend () -> Unit) {
+    override fun send(block: (Result) -> Unit, error: () -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
             val result = withContext(Dispatchers.IO) {
                 request()

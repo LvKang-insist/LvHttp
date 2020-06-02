@@ -24,14 +24,14 @@ abstract class PostFileRequest(url: String) : Request() {
         addUrl(url)
     }
 
-    override fun send(block: suspend (Result) -> Unit) {
+    override fun send(block: (Result) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
             val result = withContext(Dispatchers.IO) { request() }
             if (result != null) block(result) else Log.e("网络错误，", "请重试")
         }
     }
 
-    override fun send(block: suspend (Result) -> Unit, error: suspend () -> Unit) {
+    override fun send(block: (Result) -> Unit, error:  () -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
             val result = withContext(Dispatchers.IO) { request() }
             if (result != null) block(result) else error()

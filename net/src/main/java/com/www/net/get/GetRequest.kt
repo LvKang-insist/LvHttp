@@ -27,7 +27,7 @@ class GetRequest : Request {
     /**
      * 异步请求，返回 Result，结果是 Main 线程
      */
-    override fun send(block: suspend (Result) -> Unit) {
+    override fun send(block:  (Result) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
             val result = withContext(Dispatchers.IO) {
                 request()
@@ -39,7 +39,7 @@ class GetRequest : Request {
     /**
      * 请求失败回调 error
      */
-    override fun send(block: suspend (Result) -> Unit, error: suspend () -> Unit) {
+    override fun send(block:  (Result) -> Unit, error: () -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
             val result = withContext(Dispatchers.IO) {
                 request()

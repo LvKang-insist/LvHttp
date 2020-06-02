@@ -80,13 +80,13 @@ abstract class Request {
     /**
      * 异步请求，失败打印 log
      */
-    abstract fun send(block: suspend (Result) -> Unit)
+    abstract fun send(block: (Result) -> Unit)
 
 
     /**
      * 异步请求，失败调用进行回调
      */
-    abstract fun send(block: suspend (Result) -> Unit, error: suspend () -> Unit)
+    abstract fun send(block: (Result) -> Unit, error: () -> Unit)
 
     /**
      * 同步请求

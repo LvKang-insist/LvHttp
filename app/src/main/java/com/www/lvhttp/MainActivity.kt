@@ -38,30 +38,36 @@ class MainActivity : AppCompatActivity() {
 //            .log(true)
 
 
-
-        val path = Environment.getExternalStorageDirectory()
-        val file1 = File(path.path + "/image1.png")
-        val file2 = File(path.path + "/image2.png")
-        val file3 = File(path.path + "/image3.jpg")
-        val file4 = File(path.path + "/image4.jpg")
-        val file5 = File(path.path + "/image5.jpg")
+//        val path = Environment.getExternalStorageDirectory()
+//        val file1 = File(path.path + "/image1.png")
+//        val file2 = File(path.path + "/image2.png")
+//        val file3 = File(path.path + "/image3.jpg")
+//        val file4 = File(path.path + "/image4.jpg")
+//        val file5 = File(path.path + "/image5.jpg")
 //        val file3 = getUri(R.drawable.image4, "3789")
 
 
-
         test.setOnClickListener {
-            val mutableMap = mutableMapOf<String, File>()
-            mutableMap["456"] = file1
-            mutableMap["1233"] = file2
-            mutableMap["789"] = file3
-            mutableMap["789123"] = file4
-            mutableMap["7843259"] = file5
+//            val mutableMap = mutableMapOf<String, File>()
+//            mutableMap["456"] = file1
+//            mutableMap["1233"] = file2
+//            mutableMap["789"] = file3
+//            mutableMap["789123"] = file4
+//            mutableMap["7843259"] = file5
+//
+//
+//
+//            LvHttp.uploadMapFile("test/updata.php")
+//                .files(mutableMap)
+//                .addParam("abs", "345")
+//                .send {
+//                    Log.e("-------->", "onCreate: ${it.value}")
+//                }
 
-            LvHttp.uploadMapFile("test/updata.php")
-                .files(mutableMap)
-                .addParam("abs", "345")
+            LvHttp.get()
+                .addUrl("https://www.baidu.com")
                 .send {
-                    Log.e("-------->", "onCreate: ${it.value}")
+                    Toast.makeText(this, it.value, Toast.LENGTH_SHORT).show()
                 }
 
             //https://www.nuli100.com/JSCM_PD/index.php?m=App&c=Base&a=uploadPicdir=users&Filedata=FILE
