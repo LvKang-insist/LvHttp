@@ -13,6 +13,7 @@ object LvCreator {
 
     private var BASE_URL: String = "https://github.com/LvKang-insist/"
     private var isLog: Boolean = false
+    private var services: Services? = null
 
     fun init(baseUrl: String): LvCreator {
         BASE_URL = baseUrl
@@ -24,21 +25,27 @@ object LvCreator {
         return this
     }
 
-    class RetrofitHolder {
-        companion object {
-            val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .client(OkHolder.okHttpClient)
-                .addConverterFactory(ResponseConverterFactory())
-                .addCallAdapterFactory(ResponseAdapterFactory(isLog))
-                .build()
-        }
+    /**
+     * 获取 Retrofit
+     */
+    private fun getRetrofit(): Retrofit {
+        return RetrofitHolder.retrofit
+    }
 
+    /**
+     * 获取 services
+     */
+    fun getServices(): Services {
+        return if (services != null) {
+            services!!
+        } else {
+            services = getRetrofit().create(Services::class.java)
+            services!!
+        }
     }
 
     class OkHolder {
         companion object {
-
             val okHttpClient = OkHttpClient.Builder()
                 .addInterceptor(getInterceptor()).build()
 
@@ -51,8 +58,16 @@ object LvCreator {
         }
     }
 
-    fun getRetrofit(): Retrofit {
-        return RetrofitHolder.retrofit
+    class RetrofitHolder {
+        companion object {
+            val retrofit: Retrofit = Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(OkHolder.okHttpClient)
+                .addConverterFactory(ResponseConverterFactory())
+                .addCallAdapterFactory(ResponseAdapterFactory(isLog))
+                .build()
+        }
+
     }
 
 }

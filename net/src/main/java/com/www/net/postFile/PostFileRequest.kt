@@ -17,8 +17,7 @@ import java.io.File
  */
 abstract class PostFileRequest(url: String) : Request() {
 
-    protected val mPostFileService: PostFileService =
-        LvCreator.getRetrofit().create(PostFileService::class.java)
+    protected val mPostFileService by lazy { LvCreator.getServices() }
 
     init {
         addUrl(url)
@@ -31,7 +30,7 @@ abstract class PostFileRequest(url: String) : Request() {
         }
     }
 
-    override fun send(block: (Result) -> Unit, error:  () -> Unit) {
+    override fun send(block: (Result) -> Unit, error: () -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
             val result = withContext(Dispatchers.IO) { request() }
             if (result != null) block(result) else error()

@@ -13,7 +13,8 @@ import okhttp3.RequestBody
 class PostRequest : Request {
 
 
-    private var mPostService: PostService = LvCreator.getRetrofit().create(PostService::class.java);
+    private val mPostService by lazy { LvCreator.getServices() }
+
     private var body: RequestBody? = null
 
     constructor()

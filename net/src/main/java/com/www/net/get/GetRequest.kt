@@ -15,7 +15,8 @@ import kotlinx.coroutines.withContext
 class GetRequest : Request {
 
 
-    private var mGetService: GetService = LvCreator.getRetrofit().create(GetService::class.java);
+    private val mGetService by lazy { LvCreator.getServices() }
+
 
     constructor()
 

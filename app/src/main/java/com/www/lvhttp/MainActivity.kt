@@ -29,10 +29,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        LvCreator.init("https://www.wanandroid.com/")
-//            .log(false)
-        LvCreator.init("http://192.168.43.80:80/")
-            .log(true)
+        LvCreator.init("https://www.wanandroid.com/")
+            .log(false)
+//        LvCreator.init("http://192.168.43.80:80/")
+//            .log(true)
 
 //        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
 //            .log(true)
