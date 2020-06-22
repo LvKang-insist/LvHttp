@@ -1,22 +1,7 @@
 package com.www.net
 
-import androidx.lifecycle.LifecycleOwner
-import com.www.net.converter.ResponseAdapterFactory
-import com.www.net.converter.ResponseConverterFactory
-import com.www.net.download.DownLoadLaunch
-import com.www.net.download.OnStateListener
-import com.www.net.get.GetRequest
-import com.www.net.post.PostRequest
-import com.www.net.postFile.ListFileRequest
-import com.www.net.postFile.MapFileRequest
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.logging.HttpLoggingInterceptor
+import android.app.Application
+import okhttp3.Interceptor
 import retrofit2.Retrofit
 
 
@@ -34,10 +19,17 @@ object LvHttp {
         return mController.newInstance(clazz)
     }
 
-
+    fun getAppContext(): Application {
+        return mController.appContext
+    }
 
     class Builder {
         private var p: LvController.LvParams = LvController.LvParams()
+
+        fun setApplication(application: Application): Builder {
+            p.appContext = application
+            return this
+        }
 
         /**
          * 设置 BaseUrl
@@ -47,10 +39,44 @@ object LvHttp {
             return this
         }
 
+        fun setReadTimeOut(readTime: Long): Builder {
+            p.readTimeOut = readTime
+            return this
+        }
+
+        fun setWirteTimeOut(writeTimeOut: Long): Builder {
+            p.writeTimeOut = writeTimeOut
+            return this
+        }
+
+        /**
+         * 是否开启缓存，默认关闭
+         */
+        fun isCache(iscache: Boolean): Builder {
+            p.isCache = iscache
+            return this
+        }
+
+        /**
+         * 设置缓存大小，默认 20mb
+         */
+        fun setCacheSize(cacheSize: Long): Builder {
+            p.cacheSize = cacheSize
+            return this
+        }
+
+        /**
+         * 添加拦截器
+         */
+        fun addInterceptor(interceptor: Interceptor): Builder {
+            p.interceptors.add(interceptor)
+            return this
+        }
+
         /**
          * 设置 Service
          */
-        fun<T> setService(clazz: Class<T>): Builder {
+        fun <T> setService(clazz: Class<T>): Builder {
             p.clazz = clazz
             return this
         }

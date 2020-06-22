@@ -8,8 +8,11 @@ class BaseApplication : Application() {
         super.onCreate()
 
         LvHttp.Builder()
+            .setApplication(this)
             .setBaseUrl("https://api.github.com/")
+            .isCache(true)
             .setService(Service::class.java)
             .build()
+
     }
 }

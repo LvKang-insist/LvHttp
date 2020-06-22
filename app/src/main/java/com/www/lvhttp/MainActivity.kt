@@ -46,7 +46,6 @@ class MainActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
                 }
-
             }
 //            }
 
