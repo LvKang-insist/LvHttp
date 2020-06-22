@@ -19,8 +19,10 @@ import com.www.net.LvCreator
 import com.www.net.LvHttp
 import com.www.net.download.OnStateListener
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -38,24 +40,14 @@ class MainActivity : AppCompatActivity() {
 
         test.setOnClickListener {
 
-//            GlobalScope.launch {
-            LvHttp.getInstance(Service::class.java)
-                .get()?.run {
-                    enqueue(object : Callback<MutableList<Repo>> {
-                        override fun onFailure(call: Call<MutableList<Repo>>, t: Throwable) {
-
-                        }
-
-                        override fun onResponse(
-                            call: Call<MutableList<Repo>>,
-                            response: Response<MutableList<Repo>>
-                        ) {
-                            Log.e("--------", response.body().toString())
-
-                        }
-
-                    })
+            GlobalScope.launch {
+                val string = LvHttp.getInstance(Service::class.java)
+                    .get()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
                 }
+
+            }
 //            }
 
 
@@ -85,7 +77,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    //读写权限
+//读写权限
 
     val PERMISSIONS_STORAGE: Array<String> = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,

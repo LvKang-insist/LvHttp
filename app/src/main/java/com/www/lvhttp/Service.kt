@@ -11,5 +11,5 @@ interface Service {
      * 普通请求
      */
     @GET("users/rengwuxian/repos")
-    fun get(): Call<MutableList<Repo>>?
+    suspend fun get(): String
 }

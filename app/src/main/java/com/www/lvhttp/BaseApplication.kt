@@ -8,7 +8,7 @@ class BaseApplication : Application() {
         super.onCreate()
 
         LvHttp.Builder()
-            .setBaseUrl("https://api.github.com")
+            .setBaseUrl("https://api.github.com/")
             .setService(Service::class.java)
             .build()
     }

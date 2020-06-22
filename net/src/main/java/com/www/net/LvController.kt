@@ -1,5 +1,7 @@
 package com.www.net
 
+import com.google.gson.Gson
+import com.www.net.converter.LvConverterFactory
 import com.www.net.converter.ResponseAdapterFactory
 import com.www.net.converter.ResponseConverterFactory
 import okhttp3.OkHttpClient
@@ -35,7 +37,7 @@ class LvController {
             val retrofit: Retrofit = Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(LvConverterFactory.create(Gson()))
                 .build()
 
 
