@@ -19,6 +19,12 @@ import com.www.net.LvCreator
 import com.www.net.LvHttp
 import com.www.net.download.OnStateListener
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 
@@ -29,68 +35,31 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        LvCreator.init("https://www.wanandroid.com/")
-            .log(false)
-//        LvCreator.init("http://192.168.43.80:80/")
-//            .log(true)
-
-//        LvCreator.init("https://www.nuli100.com/JSCM_PD/")
-//            .log(true)
-
-
-//        val path = Environment.getExternalStorageDirectory()
-//        val file1 = File(path.path + "/image1.png")
-//        val file2 = File(path.path + "/image2.png")
-//        val file3 = File(path.path + "/image3.jpg")
-//        val file4 = File(path.path + "/image4.jpg")
-//        val file5 = File(path.path + "/image5.jpg")
-//        val file3 = getUri(R.drawable.image4, "3789")
-
 
         test.setOnClickListener {
-//            val mutableMap = mutableMapOf<String, File>()
-//            mutableMap["456"] = file1
-//            mutableMap["1233"] = file2
-//            mutableMap["789"] = file3
-//            mutableMap["789123"] = file4
-//            mutableMap["7843259"] = file5
-//
-//
-//
-//            LvHttp.uploadMapFile("test/updata.php")
-//                .files(mutableMap)
-//                .addParam("abs", "345")
-//                .send {
-//                    Log.e("-------->", "onCreate: ${it.value}")
-//                }
 
-            LvHttp.get()
-                .addUrl("https://www.baidu.com")
-                .send {
-                    Toast.makeText(this, it.value, Toast.LENGTH_SHORT).show()
+//            GlobalScope.launch {
+            LvHttp.getInstance(Service::class.java)
+                .get()?.run {
+                    enqueue(object : Callback<MutableList<Repo>> {
+                        override fun onFailure(call: Call<MutableList<Repo>>, t: Throwable) {
+
+                        }
+
+                        override fun onResponse(
+                            call: Call<MutableList<Repo>>,
+                            response: Response<MutableList<Repo>>
+                        ) {
+                            Log.e("--------", response.body().toString())
+
+                        }
+
+                    })
                 }
+//            }
+
 
             //https://www.nuli100.com/JSCM_PD/index.php?m=App&c=Base&a=uploadPicdir=users&Filedata=FILE
-//            if (file.exists()) {
-            /* LvHttp
-                 .uploadMapFile("index.php")
-                 .file("Filedata", file)
-                 .addParam("m", "App")
-                 .addParam("c", "Base")
-                 .addParam("a", "uploadPic")
-                 .addParam("dir", "users")
-                 .send({
-//                         https://www.nuli100.com/JSCM_PD/index.php?m=App&c=APIUsers&a=editUserPhoto&tokenId=4f9aa4a019d142dd8741ae6a0ec26d3cc0a&userPhoto=Upload/users/2020-05/5ec77db438782.jpg
-                     LvHttp.get()
-                         .addUrl("https://www.nuli100.com/JSCM_PD/index.php?m=App&c=APIUsers&a=editUserPhoto&tokenId=4f9aa4a019d142dd8741ae6a0ec26d3cc0a&userPhoto=Upload/users/2020-05/5ec77df7f348a.jpg")
-                         .send {
-//                                  {"status":1,"Filedata":{"savepath":"Upload\/users\/2020-05\/","savethumbname":"5ec77f21d07c6_thumb.jpg","savename":"5ec77f21d07c6.jpg"}}
-                         }
-
-                 }) {
-                     Toast.makeText(this, "上传失败", Toast.LENGTH_LONG).show()
-                 }*/
-//            }
         }
 //        zip()
     }
@@ -115,33 +84,6 @@ class MainActivity : AppCompatActivity() {
           )*/
     }
 
-    private fun zip() {
-        LvHttp.zip(Pair({
-            LvHttp.get()
-                .addUrl("index.php")
-                .addParam("m", "App")
-                .addParam("c", "APIUsersNewCar")
-                .addParam("a", "carDetail")
-                .addParam("articleType", "0")
-                .addParam("p", 1)
-                .send()
-        }, {
-            LvHttp.get()
-                .addUrl("index.php")
-                .addParam("m", "App")
-                .addParam("c", "APIUsersNewCar")
-                .addParam("a", "carDetail")
-                .addParam("articleType", "0")
-                .addParam("p", 1)
-                .send()
-        })) {
-            if (it.first != null) {
-//                var format = it.first?.format(MainActivity::class.java)
-//                Log.e("000000000000", format.toString())
-                Log.e("Toast------>  ", "")
-            }
-        }
-    }
 
     //读写权限
 
@@ -176,34 +118,7 @@ class MainActivity : AppCompatActivity() {
         fileUrl.setText("https://kotlinlang.org/docs/kotlin-docs.pdf")
         fileName.setText("Kotlin-Docs.pdf")
         downloadButton.setOnClickListener {
-            LvHttp.download(this,
-                fileUrl.text.toString(),
-                fileName.text.toString(),
-                Environment.getExternalStorageDirectory().path,
-                object : OnStateListener {
-                    override fun start() {
-                        Toast.makeText(getContext(), "开始下载", Toast.LENGTH_LONG).show()
-                    }
 
-                    override fun process(value: Int) {
-                        downloadButton.text = "Downloading $value"
-                    }
-
-                    override fun error(throwable: Throwable) {
-                        Log.e("-----------", throwable.message!!)
-                        Toast.makeText(getContext(), "下载出错：${throwable.message}", Toast.LENGTH_LONG)
-                            .show()
-                        downloadButton.text = "DownLoad"
-                    }
-
-                    override fun donal(file: File) {
-                        downloadButton.text = "下载成功"
-                        downloadPath.setText(file.absolutePath)
-                        Toast.makeText(getContext(), "下载完成：" + file.path, Toast.LENGTH_LONG).show()
-                    }
-
-
-                })
         }
     }
 

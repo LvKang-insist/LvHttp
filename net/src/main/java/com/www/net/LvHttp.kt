@@ -1,6 +1,8 @@
 package com.www.net
 
 import androidx.lifecycle.LifecycleOwner
+import com.www.net.converter.ResponseAdapterFactory
+import com.www.net.converter.ResponseConverterFactory
 import com.www.net.download.DownLoadLaunch
 import com.www.net.download.OnStateListener
 import com.www.net.get.GetRequest
@@ -12,87 +14,53 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
 
-/**
- * 请求入口类
- */
+
 object LvHttp {
 
-    /**
-     * get 请求
-     */
-    fun get(url: String): GetRequest {
-        return GetRequest(url)
-    }
+    private val mController = LvController()
 
-    fun get(): GetRequest {
-        return GetRequest()
-    }
 
-    /**
-     * Post 请求，表单请求体
-     */
-    fun post(url: String): PostRequest {
-        return PostRequest(url, null)
-    }
-
-    fun post(): PostRequest {
-        return PostRequest()
-    }
-
-    /**
-     * 即非表单请求体，需要传入 json 传
-     */
-    fun postRaw(url: String, raw: String): PostRequest {
-        return PostRequest(
-            url,
-            raw.toRequestBody("application/json;charset=urf-8".toMediaTypeOrNull())
-        )
+    fun getRetrofit(): Retrofit {
+        return mController.retrofit
     }
 
 
-    /**
-     * 上传文件，文件类型为 key 对应多个 file
-     */
-    fun uploadListFile(url: String): ListFileRequest {
-        return ListFileRequest(url)
-    }
-
-    /**
-     * 上传文件，一个 key 对应 一个 file
-     */
-    fun uploadMapFile(url: String): MapFileRequest {
-        return MapFileRequest(url)
+    fun <T> getInstance(clazz: Class<T>): T {
+        return mController.newInstance(clazz)
     }
 
 
-    /**
-     * 并发请求，最多可并发两次
-     */
-    fun <T1, T2> zip(
-        pair: Pair<() -> T1, () -> T2>,
-        result: (Pair<T1?, T2?>) -> Unit
-    ) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val x = GlobalScope.async { pair.first() }
-            val y = GlobalScope.async { pair.second() }
-            launch(Dispatchers.Main) {
-                result(Pair(x.await(), y.await()))
-            }
+
+    class Builder {
+        private var p: LvController.LvParams = LvController.LvParams()
+
+        /**
+         * 设置 BaseUrl
+         */
+        fun setBaseUrl(baseUrl: String): Builder {
+            p.baseUrl = baseUrl
+            return this
         }
-    }
 
-    /**
-     * 文件下载
-     */
-    fun download(
-        owner: LifecycleOwner,
-        url: String,
-        fileName: String,
-        savePath: String,
-        stateListener: OnStateListener
-    ) {
-        DownLoadLaunch.create(owner, url, fileName, savePath, stateListener)
+        /**
+         * 设置 Service
+         */
+        fun<T> setService(clazz: Class<T>): Builder {
+            p.clazz = clazz
+            return this
+        }
+
+        fun build() {
+            create()
+        }
+
+        private fun create(): Retrofit {
+            return p.apply(mController)
+        }
     }
 }
