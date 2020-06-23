@@ -2,33 +2,21 @@ package com.www.lvhttp
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.www.net.LvCreator
-import com.www.net.LvHttp
-import com.www.net.download.OnStateListener
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,19 +28,31 @@ class MainActivity : AppCompatActivity() {
 
         test.setOnClickListener {
 
-            GlobalScope.launch {
-                val string = LvHttp.getInstance(Service::class.java)
-                    .get()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
-                }
-            }
+            //https://www.nuli100.com/JSCM_PD/index.php?m=App&c=APIMall&a=getGoodsList&currPage=1&goodsSrc=1
+            val client = OkHttpClient.Builder().build()
+            val request = Request.Builder()
+                .url("https://www.baidu.com")
+                .build()
+            val call = client.newCall(request)
+
+            val response = call.execute()
+
+
+//            GlobalScope.launch {
+//                val string = LvHttp.getInstance(Service::class.java)
+//                    .get()
+//                withContext(Dispatchers.Main) {
+//                    Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
+//                }
+//            }
 //            }
 
 
             //https://www.nuli100.com/JSCM_PD/index.php?m=App&c=Base&a=uploadPicdir=users&Filedata=FILE
         }
 //        zip()
+
+
     }
 
     private fun getUri(resId: Int, string: String): File {
@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-//读写权限
+    //读写权限
 
     val PERMISSIONS_STORAGE: Array<String> = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,

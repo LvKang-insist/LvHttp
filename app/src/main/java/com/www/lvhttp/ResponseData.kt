@@ -8,6 +8,10 @@ package com.www.lvhttp
  * @description
  */
 
-class ResponseBean<T>
+data class ResponseData<T>(val data: T)
 
+
+suspend fun <T> ResponseData<T>.block() {
+
+}
 
