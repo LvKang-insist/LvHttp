@@ -17,11 +17,12 @@ import com.www.net.LvHttp
 import com.www.net.launchAfHttp
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
+import java.lang.Exception
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 
 class MainActivity : AppCompatActivity() {
 
@@ -49,10 +50,14 @@ class MainActivity : AppCompatActivity() {
             GlobalScope.launch(Dispatchers.Main) {
 
                 val string = withContext(Dispatchers.IO) {
-                    LvHttp.getInstance(Service::class.java)
-                        .get()
+                    val createApi = LvHttp.createApi(Service::class.java)
+                    try {
+                        createApi.get()
+                    } catch (e: Exception) {
+                        null
+                    }
                 }
-                    Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
             }
 
 

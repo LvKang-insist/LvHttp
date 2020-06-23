@@ -1,8 +1,13 @@
 package com.www.net
 
 import android.app.Application
+import android.util.Log
 import okhttp3.Interceptor
 import retrofit2.Retrofit
+import java.lang.Exception
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 
 
 object LvHttp {
@@ -15,8 +20,13 @@ object LvHttp {
     }
 
 
-    fun <T> getInstance(clazz: Class<T>): T {
-        return mController.newInstance(clazz)
+    fun <T> createApi(clazz: Class<T>): T {
+        val t = mController.newInstance(clazz)
+
+        val any = t as Any
+
+
+        return t
     }
 
     fun getAppContext(): Application {
