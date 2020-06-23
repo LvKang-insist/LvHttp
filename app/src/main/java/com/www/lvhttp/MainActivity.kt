@@ -9,9 +9,14 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
+import com.www.net.LvHttp
+import com.www.net.launchAfHttp
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -29,22 +34,33 @@ class MainActivity : AppCompatActivity() {
         test.setOnClickListener {
 
             //https://www.nuli100.com/JSCM_PD/index.php?m=App&c=APIMall&a=getGoodsList&currPage=1&goodsSrc=1
-            val client = OkHttpClient.Builder().build()
-            val request = Request.Builder()
-                .url("https://www.baidu.com")
-                .build()
-            val call = client.newCall(request)
+//            val client = OkHttpClient.Builder().build()
+//            val request = Request.Builder()
+//                .url("https://www.baidu.com")
+//                .build()
+//            val call = client.newCall(request)
+//
+//            val response = call.execute()
 
-            val response = call.execute()
+            lifecycleScope.launch {
+
+            }
+
+            GlobalScope.launch(Dispatchers.Main) {
+
+                val string = withContext(Dispatchers.IO) {
+                    LvHttp.getInstance(Service::class.java)
+                        .get()
+                }
+                    Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
+            }
 
 
-//            GlobalScope.launch {
-//                val string = LvHttp.getInstance(Service::class.java)
-//                    .get()
-//                withContext(Dispatchers.Main) {
-//                    Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
-//                }
-//            }
+            launchAfHttp {
+
+
+            }
+
 //            }
 
 
