@@ -4,7 +4,9 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -25,34 +27,28 @@ import kotlin.coroutines.createCoroutine
  * @description
  */
 
-
-private suspend fun tryCach(
-    errorBlock: (suspend (Throwable) -> Unit)?,
-    block: suspend CoroutineScope.() -> Unit
-) {
-
-    try {
-        coroutineScope {
-            block()
-        }
-    } catch (t: Throwable) {
-        errorBlock?.let {
-            it(t)
-            return
-        }
-        //全局异常处理
-    }
-}
-
-
+/**
+ * 适用于在 Activity/Fragment 中调用
+ */
 fun LifecycleOwner.launchAfHttp(
     context: CoroutineContext = Dispatchers.IO,
     errorBlock: (suspend (Throwable) -> Unit)? = null,
     block: suspend CoroutineScope.() -> Unit
 ) {
-
-
     lifecycleScope.launch(context) {
+        block()
+    }
+}
+
+/**
+ * 适用于在 ViewModel 中调用
+ */
+fun ViewModel.launchVmHttp(
+    context: CoroutineContext = Dispatchers.IO,
+    errorBlock: (suspend (Throwable) -> Unit)? = null,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    viewModelScope.launch {
         block()
     }
 }

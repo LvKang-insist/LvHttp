@@ -1,6 +1,8 @@
 package com.www.net
 
 import android.app.Application
+import com.www.net.error.ErrorDispose
+import com.www.net.error.ErrorKey
 import okhttp3.Interceptor
 import okhttp3.internal.platform.Platform
 import retrofit2.Retrofit
@@ -15,96 +17,32 @@ object LvHttp {
 
     private val mController = LvController()
 
-
+    /**
+     * 获取 Retrofit
+     */
     fun getRetrofit(): Retrofit {
         return mController.retrofit
     }
 
-
-    fun <T> createApi(clazz: Class<T>): T?{
-//        val t = mController.newInstance(clazz)
-
-        var t: T?= null
-
-        val retrofit = Class.forName("retrofit2.Retrofit")
-
-        val create = retrofit.getDeclaredMethod("create", Class::class.java)
-
-        try {
-            t = create.invoke(getRetrofit(), clazz) as T
-        } catch (e: Exception) {
-
-        }
-
-        return t
-        /*val any = t as Any
-        return Proxy.newProxyInstance(any::class.java.classLoader,
-            any::class.java.interfaces,
-            object : InvocationHandler {
-                @RequiresApi(Build.VERSION_CODES.O)
-                override fun invoke(proxy: Any?, method: Method?, args: Array<Any>?): Any? {
-                    try {
-                        return method?.invoke(any)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                    return null
-                }
-            }) as T*/
-
-
+    /**
+     * 创建 API
+     */
+    fun <T> createApi(clazz: Class<T>): T? {
+        return mController.newInstance(clazz)
     }
 
-    fun <T> Retrofit.crea(service: Class<T>): T {
-
-        return Proxy.newProxyInstance(
-            service::class.java.classLoader,
-            service.interfaces,
-            object : InvocationHandler {
-                override fun invoke(proxy: Any?, method: Method?, args: Array<out Any>?): Any {
-
-
-                    if (method!!.declaringClass == Any::class.java) {
-                        return method.invoke(this, args)
-                    }
-                    val forName = Class.forName("retrofit2.Platform")
-
-                    val get = forName.getDeclaredMethod("get")
-                    val platform = get.invoke(null, null)
-
-                    val bol = forName.getDeclaredMethod("isDefaultMethod", Method::class.java)
-                        .invoke(platform, method) as Boolean
-                    if (bol) {
-                        forName.getDeclaredMethod(
-                            "invokeDefaultMethod",
-                            Method::class.java,
-                            Class::class.java,
-                            Any::class.java,
-                            java.lang.reflect.Array::class.java
-                        ).invoke(platform, method, service, proxy, args)
-                    }
-                    val clazz = Class.forName("retrofit2.Retrofit")
-
-                    val ref =
-                        clazz.getDeclaredMethod("loadServiceMethod", Method::class.java)
-                    val invoke = ref.invoke(getRetrofit(), method)
-
-                    val ser = Class.forName("retrofit2.ServiceMethod")
-
-                    val inv =
-                        ser.getDeclaredMethod("invoke", java.lang.reflect.Array::class.java)
-
-
-                    return inv.invoke(invoke, if (args != null) args else arrayOf())
-                }
-
-            }
-        ) as T
-//
-    }
-
+    /**
+     * 获取 Application
+     */
     fun getAppContext(): Application {
         return mController.appContext
+    }
+
+    /**
+     * 设置异常处理
+     */
+    fun setErrorDispose(errorKey: ErrorKey, error: (String) -> Unit) {
+        mController.errorDisposes[errorKey] = error
     }
 
     class Builder {
@@ -154,6 +92,14 @@ object LvHttp {
          */
         fun addInterceptor(interceptor: Interceptor): Builder {
             p.interceptors.add(interceptor)
+            return this
+        }
+
+        /**
+         * 设置异常处理
+         */
+        fun setErrorDispose(errorKey: ErrorKey, error: (String) -> Unit): Builder {
+            p.errorDisposes[errorKey] = error
             return this
         }
 

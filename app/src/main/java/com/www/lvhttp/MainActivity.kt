@@ -14,12 +14,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.www.net.LvHttp
-import com.www.net.LvHttp.crea
 import com.www.net.launchAfHttp
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.create
 import java.io.File
 import java.io.FileOutputStream
@@ -50,11 +52,15 @@ class MainActivity : AppCompatActivity() {
 
             launchAfHttp {
 
-                val string = LvHttp.getRetrofit().crea(Service::class.java).get()
+                val response = LvHttp.getRetrofit().create(Service::class.java).baidu()
+
 
 
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
+                    response.headers().forEach {
+                        Log.e("---------->", "${it.first} ------ ${it.second} ")
+                    }
+                    Toast.makeText(this@MainActivity, response.body(), Toast.LENGTH_SHORT).show()
                 }
             }
 

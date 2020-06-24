@@ -1,6 +1,8 @@
 package com.www.net.converter
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -17,11 +19,11 @@ import java.lang.reflect.WildcardType
  * @time 2020/6/22 20:21
  * @description
  */
-class LvConverterFactory(private val gson: Gson) : Converter.Factory() {
+class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
 
     companion object {
-        fun create(gson: Gson): LvConverterFactory {
-            return LvConverterFactory(gson)
+        fun create(gson: Gson): LvDefaultConverterFactory {
+            return LvDefaultConverterFactory(gson)
         }
     }
 
@@ -41,9 +43,10 @@ class LvConverterFactory(private val gson: Gson) : Converter.Factory() {
 
     class LvResponseBodyConverter<T>(private val gson: Gson, private val type: Type) :
         Converter<ResponseBody, T> {
+        @RequiresApi(Build.VERSION_CODES.P)
         override fun convert(value: ResponseBody): T? {
             val string = value.string()
-            Log.e("---------", string)
+            Log.e("---------", type.typeName)
             if (type == String::class.java || type::class.java.isPrimitive) {
                 return string as T
             }
