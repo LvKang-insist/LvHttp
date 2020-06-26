@@ -27,7 +27,7 @@ object LvHttp {
     /**
      * 创建 API
      */
-    fun <T> createApi(clazz: Class<T>): T? {
+    fun <T> createApi(clazz: Class<T>): T {
         return mController.newInstance(clazz)
     }
 

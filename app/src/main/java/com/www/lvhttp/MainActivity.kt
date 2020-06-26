@@ -51,20 +51,18 @@ class MainActivity : AppCompatActivity() {
 
 
             launchAfHttp {
-
-                val response = LvHttp.getRetrofit().create(Service::class.java).baidu()
-
-
-
-                runOnUiThread {
-                    response.headers().forEach {
-                        Log.e("---------->", "${it.first} ------ ${it.second} ")
+                val bean = LvHttp.createApi(Service::class.java).get()
+                Log.e("---------->", "onCreate: ${bean.data}")
+                withContext(Dispatchers.Main) {
+                    bean.parse("errorCode", 0, {
+                        Toast.makeText(this@MainActivity, "code 过期 ，请重新登录", Toast.LENGTH_SHORT)
+                            .show()
+                    }) {
+                        Toast.makeText(this@MainActivity, bean.data.toString(), Toast.LENGTH_SHORT)
+                            .show()
                     }
-                    Toast.makeText(this@MainActivity, response.body(), Toast.LENGTH_SHORT).show()
                 }
             }
-
-//            }
 
 
             //https://www.nuli100.com/JSCM_PD/index.php?m=App&c=Base&a=uploadPicdir=users&Filedata=FILE

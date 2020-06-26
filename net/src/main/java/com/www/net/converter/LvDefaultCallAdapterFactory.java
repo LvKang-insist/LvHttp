@@ -100,8 +100,35 @@ public class LvDefaultCallAdapterFactory extends CallAdapter.Factory {
                     }
                 });
             } catch (Exception e) {
+                e.printStackTrace();
                 Log.e("LvHttp ------> ", "全局异常处理：" + e.toString());
             }
+
+           /* delegate.enqueue(new Callback<T>() {
+                @Override
+                public void onResponse(Call<T> call, final Response<T> response) {
+                    callbackExecutor.execute(() -> {
+                        try{
+                            if (delegate.isCanceled()) {
+                                // Emulate OkHttp's behavior of throwing/delivering an IOException on cancellation.
+                                callback.onFailure(ExecutorCallbackCall.this, new IOException("Canceled"));
+                            } else {
+                                callback.onResponse(ExecutorCallbackCall.this, response);
+                            }
+                        }catch (Exception e){
+                            Log.e("LvHttp ------> ", "全局异常处理：1" + e.toString());
+                        }
+                    });
+                }
+                @Override
+                public void onFailure(Call<T> call, final Throwable t) {
+                    try {
+                        callbackExecutor.execute(() -> callback.onFailure(ExecutorCallbackCall.this, t));
+                    } catch (Exception e) {
+                        Log.e("LvHttp ------> ", "全局异常处理：2" + e.toString());
+                    }
+                }
+            });*/
         }
 
         @Override
