@@ -3,6 +3,7 @@ package com.www.net
 import android.app.Application
 import com.www.net.error.ErrorDispose
 import com.www.net.error.ErrorKey
+import com.www.net.error.ErrorValue
 import okhttp3.Interceptor
 import okhttp3.internal.platform.Platform
 import retrofit2.Retrofit
@@ -41,8 +42,15 @@ object LvHttp {
     /**
      * 设置异常处理
      */
-    fun setErrorDispose(errorKey: ErrorKey, error: (String) -> Unit) {
-        mController.errorDisposes[errorKey] = error
+    fun setErrorDispose(errorKey: ErrorKey, errorValue: ErrorValue) {
+        mController.errorDisposes[errorKey] = errorValue
+    }
+
+    /**
+     * 获取异常处理
+     */
+    fun getErrorDispose(errorKey: ErrorKey): ErrorValue? {
+        return mController.errorDisposes[errorKey]
     }
 
     class Builder {
@@ -98,8 +106,8 @@ object LvHttp {
         /**
          * 设置异常处理
          */
-        fun setErrorDispose(errorKey: ErrorKey, error: (String) -> Unit): Builder {
-            p.errorDisposes[errorKey] = error
+        fun setErrorDispose(errorKey: ErrorKey, errorValue: ErrorValue): Builder {
+            p.errorDisposes[errorKey] = errorValue
             return this
         }
 

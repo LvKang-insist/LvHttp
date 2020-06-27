@@ -8,15 +8,6 @@ import java.io.IOException
 import java.io.InputStreamReader
 
 /**
- * @name NetWorkUtils
- * @package com.www.net.utils
- * @author 345 QQ:1831712732
- * @time 2020/6/22 23:34
- * @description
- */
-
-
-/**
  * 判断wifi网络是否可用
  *
  * @param context

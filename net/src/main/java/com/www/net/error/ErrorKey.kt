@@ -14,6 +14,12 @@ enum class ErrorKey {
      */
     AllEexeption,
 
+
+    /**
+     *  自定义 Code 异常
+     */
+    ErrorCode,
+
     /**
      * 域名解析失败
      * 原因 ：
@@ -22,6 +28,11 @@ enum class ErrorKey {
      *      3，DNS 服务器故障
      */
     UnknownHostException,
+
+    /**
+     * 数据解析错误
+     */
+    JSON_EXCEPTION,
 
     /**
      * 连接超时

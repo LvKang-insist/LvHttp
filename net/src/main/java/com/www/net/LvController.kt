@@ -6,6 +6,7 @@ import com.www.net.converter.LvDefaultConverterFactory
 import com.www.net.converter.LvDefaultCallAdapterFactory
 import com.www.net.error.ErrorDispose
 import com.www.net.error.ErrorKey
+import com.www.net.error.ErrorValue
 import com.www.net.interceptor.CacheInterceptor
 import okhttp3.Cache
 import okhttp3.Interceptor
@@ -22,7 +23,7 @@ class LvController {
     lateinit var appContext: Application
     lateinit var retrofit: Retrofit
     private val mCache = mutableMapOf<String, Any>()
-    val errorDisposes: MutableMap<ErrorKey, (message: String) -> Unit> = mutableMapOf()
+    val errorDisposes: MutableMap<ErrorKey, ErrorValue> = mutableMapOf()
 
 
     fun <T> newInstance(clazz: Class<T>): T {
@@ -44,7 +45,7 @@ class LvController {
         var isCache = false
         var cacheSize: Long = 1024 * 1024 * 20
         var interceptors = arrayListOf<Interceptor>()
-        val errorDisposes: MutableMap<ErrorKey, (message: String) -> Unit> = mutableMapOf()
+        val errorDisposes: MutableMap<ErrorKey, ErrorValue> = mutableMapOf()
 
         fun apply(controller: LvController): Retrofit {
             val builder = OkHttpClient.Builder()
@@ -69,7 +70,6 @@ class LvController {
             val retrofit: Retrofit = Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .client(client)
-                .addCallAdapterFactory(LvDefaultCallAdapterFactory.create())
                 .addConverterFactory(LvDefaultConverterFactory.create(Gson()))
                 .build()
 

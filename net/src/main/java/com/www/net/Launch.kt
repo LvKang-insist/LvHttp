@@ -1,9 +1,11 @@
 package com.www.net
 
+import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import com.www.net.error.ErrorKey
 import kotlinx.coroutines.*
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
@@ -25,9 +27,28 @@ suspend fun tryCache(
     try {
         coroutineScope(block)
     } catch (e: Exception) {
-        error?.apply { invoke(e) }
+        withContext(Dispatchers.Main) {
+            error?.let {
+                it(e)
+                return@withContext
+            }
+
+            //如果全局异常启用
+            LvHttp.getErrorDispose(ErrorKey.AllEexeption)?.error?.let {
+                it(e)
+                return@withContext
+            }
+            //自动匹配异常
+            ErrorKey.values().forEach {
+                if (it.name == e::class.java.simpleName) {
+                    LvHttp.getErrorDispose(it)?.error?.let { it(e) }
+                    return@withContext
+                }
+            }
+            e.printStackTrace()
+        }
     } finally {
-        finally?.apply { invoke() }
+        finally?.let { it() }
     }
 }
 

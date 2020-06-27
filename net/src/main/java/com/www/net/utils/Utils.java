@@ -19,13 +19,7 @@ import java.util.Objects;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 
-/**
- * @author 345 QQ:1831712732
- * @name Utils
- * @package com.www.net.utils
- * @time 2020/6/24 20:27
- * @description
- */
+
 public final class Utils {
     static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
 

@@ -1,19 +1,14 @@
 package com.www.net.converter
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
-import com.www.net.ResponseData
 
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
-import java.lang.Exception
-import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
-import java.lang.reflect.WildcardType
 
 /**
  * @name LvConverterFactory
@@ -47,37 +42,15 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
     class LvResponseBodyConverter<T>(private val gson: Gson, private val type: Type) :
         Converter<ResponseBody, T> {
         @RequiresApi(Build.VERSION_CODES.P)
+
         override fun convert(value: ResponseBody): T? {
             val string = value.string()
             if (type == String::class.java || type::class.java.isPrimitive) {
                 return string as T
             }
-            try {
-                val bodyType = getParameterUpperBound(type as ParameterizedType)
-                if (bodyType != null) {
-                    if (bodyType == String::class.java || bodyType::class.java.isPrimitive) {
-                        return ResponseData(string, string) as T
-                    }
-                    val responseData = ResponseData(gson.fromJson<T>(string, bodyType), string)
-                    return responseData as T
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
             return gson.fromJson(string, type)
         }
 
-        @RequiresApi(Build.VERSION_CODES.P)
-        private fun getParameterUpperBound(type: ParameterizedType): Type? {
-            //获取全部 type
-            val types = type.actualTypeArguments
-            require(types.isNotEmpty()) { "Index " + 0 + " not in range [0," + types.size + ") for " + type }
-            val paramType = types[0]
-            //如果是通配符，取上限
-            return if (paramType is WildcardType) {
-                paramType.upperBounds[0]
-            } else paramType
-        }
     }
 
 

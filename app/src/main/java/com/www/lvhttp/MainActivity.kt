@@ -14,7 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.www.net.LvHttp
+import com.www.net.block
 import com.www.net.launchAfHttp
+import com.www.net.resultMain
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -51,25 +53,12 @@ class MainActivity : AppCompatActivity() {
 
 
             launchAfHttp {
-                val bean = LvHttp.createApi(Service::class.java).get()
-                Log.e("---------->", "onCreate: ${bean.data}")
-                withContext(Dispatchers.Main) {
-                    bean.parse("errorCode", 0, {
-                        Toast.makeText(this@MainActivity, "code 过期 ，请重新登录", Toast.LENGTH_SHORT)
-                            .show()
-                    }) {
-                        Toast.makeText(this@MainActivity, bean.data.toString(), Toast.LENGTH_SHORT)
-                            .show()
-                    }
+                delay(3000)
+                LvHttp.createApi(Service::class.java).get().resultMain {
+                    Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
                 }
             }
-
-
-            //https://www.nuli100.com/JSCM_PD/index.php?m=App&c=Base&a=uploadPicdir=users&Filedata=FILE
         }
-//        zip()
-
-
     }
 
     private fun getUri(resId: Int, string: String): File {
