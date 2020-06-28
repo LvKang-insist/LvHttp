@@ -2,14 +2,18 @@ package com.www.lvhttp
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.www.net.LvHttp
@@ -24,6 +28,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.create
+import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.Exception
@@ -33,6 +38,7 @@ import java.lang.reflect.Proxy
 
 class MainActivity : AppCompatActivity() {
 
+    lateinit var job: Job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,14 +56,19 @@ class MainActivity : AppCompatActivity() {
 //
 //            val response = call.execute()
 
-
             launchAfHttp {
-                delay(3000)
-                LvHttp.createApi(Service::class.java).get().resultMain {
+                /*LvHttp.createApi(Service::class.java).get().resultMain {
                     Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
+                }*/
+                val body = LvHttp.createApi(Service::class.java).downlog()
+                body.let { response ->
+
+
+
                 }
             }
         }
+
     }
 
     private fun getUri(resId: Int, string: String): File {

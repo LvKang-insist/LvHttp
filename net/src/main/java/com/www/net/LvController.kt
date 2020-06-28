@@ -40,8 +40,10 @@ class LvController {
         lateinit var baseUrl: String
         lateinit var clazz: Class<*>
         lateinit var appContext: Application
+        var connectTimeOut: Long = 10
         var readTimeOut: Long = 10
         var writeTimeOut: Long = 30
+        var isLogging = false
         var isCache = false
         var cacheSize: Long = 1024 * 1024 * 20
         var interceptors = arrayListOf<Interceptor>()
@@ -51,7 +53,7 @@ class LvController {
             val builder = OkHttpClient.Builder()
                 .readTimeout(readTimeOut, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeOut, TimeUnit.SECONDS)
-                .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                .connectTimeout(connectTimeOut, TimeUnit.SECONDS)
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .retryOnConnectionFailure(true)
 
@@ -59,6 +61,10 @@ class LvController {
             if (isCache) {
                 builder.cache(Cache(appContext.cacheDir, cacheSize))
                 builder.addNetworkInterceptor(CacheInterceptor())
+            }
+            //设置 Logging
+            if (isLogging) {
+                builder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
             }
 
             //设置拦截器

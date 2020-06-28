@@ -1,6 +1,7 @@
 package com.www.net.converter
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 
@@ -47,6 +48,10 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
             val string = value.string()
             if (type == String::class.java || type::class.java.isPrimitive) {
                 return string as T
+            }
+            Log.e("---------->", "safasdf: ==========${type.typeName}" )
+            if (type == ResponseBody::class.java) {
+                return value as T
             }
             return gson.fromJson(string, type)
         }

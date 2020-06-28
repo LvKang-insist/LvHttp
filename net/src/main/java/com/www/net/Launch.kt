@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.www.net.error.ErrorKey
 import kotlinx.coroutines.*
+import okhttp3.ConnectionSpec
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 

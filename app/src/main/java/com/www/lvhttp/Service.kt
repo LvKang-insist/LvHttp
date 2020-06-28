@@ -2,6 +2,7 @@ package com.www.lvhttp
 
 
 import com.www.net.ResponseData
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
@@ -16,6 +17,6 @@ interface Service {
     @GET("users/rengwuxian/repos")
     suspend fun baidu(): Response<String>
 
-
-
+    @GET("https://kotlinlang.org/docs/kotlin-docs.pdf")
+    suspend fun downlog(): ResponseBody
 }

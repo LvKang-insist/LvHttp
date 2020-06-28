@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.util.*
+import kotlin.math.log
 
 
 object LvHttp {
@@ -69,13 +70,32 @@ object LvHttp {
             return this
         }
 
+        /**
+         * 连接时间，秒为单位
+         */
+        fun setConnectTimeOut(connecTime: Long): Builder {
+            p.connectTimeOut = connecTime
+            return this
+        }
+
+        /**
+         * 下载响应的时候等待时间，秒为单位
+         */
         fun setReadTimeOut(readTime: Long): Builder {
             p.readTimeOut = readTime
             return this
         }
 
+        /**
+         * 写入请求的等待时间，秒为单位
+         */
         fun setWirteTimeOut(writeTimeOut: Long): Builder {
             p.writeTimeOut = writeTimeOut
+            return this
+        }
+
+        fun isLoging(logging: Boolean): Builder {
+            p.isLogging = logging
             return this
         }
 
