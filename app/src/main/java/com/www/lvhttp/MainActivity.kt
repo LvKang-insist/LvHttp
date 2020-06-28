@@ -2,7 +2,6 @@ package com.www.lvhttp
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -10,31 +9,21 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.www.net.LvHttp
-import com.www.net.block
+import com.www.net.download.DownResponse
+import com.www.net.download.start
+import com.www.net.file.createFilesParts
 import com.www.net.launchAfHttp
 import com.www.net.resultMain
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.create
-import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.Exception
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.Method
-import java.lang.reflect.Proxy
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,15 +46,52 @@ class MainActivity : AppCompatActivity() {
 //            val response = call.execute()
 
             launchAfHttp {
-                /*LvHttp.createApi(Service::class.java).get().resultMain {
-                    Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
-                }*/
-                val body = LvHttp.createApi(Service::class.java).downlog()
-                body.let { response ->
+//                LvHttp.createApi(Service::class.java).get().resultMain {
+//                    Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
+//                }
 
+                val path = Environment.getExternalStorageDirectory()
+                val file1 = File(path.path + "/image1.png")
+                val file2 = File(path.path + "/image2.png")
+                val file3 = File(path.path + "/image3.jpg")
+                val file4 = File(path.path + "/image4.jpg")
+                val file5 = File(path.path + "/image5.jpg")
+                val mutableMap = mutableMapOf<String, File>()
+                mutableMap["456"] = file1
+//                mutableMap["1233"] = file2
+//                mutableMap["789"] = file3
+//                mutableMap["789123"] = file4
+//                mutableMap["7843259"] = file5
+                val postFile = LvHttp.createApi(Service::class.java)
+                    .postFile("http://192.168.43.253:80/test/updata.php", *createFilesParts(mutableMap))
 
-
+                withContext(Dispatchers.Main) {
+                    Log.e("-----上传---->", "onCreate: ${postFile.toString()}")
                 }
+
+                /* LvHttp.createApi(Service::class.java).download()
+                     .start(object : DownResponse("LvHttp", "Kotlin.pdf") {
+                         override fun create(size: Float) {
+                             Log.e("-------->", "create:总大小 ${(size)} ")
+                         }
+
+                         override fun process(process: Int) {
+                             downloadPath.setText("$process %")
+                         }
+
+                         override fun error(e: Exception) {
+                             e.printStackTrace()
+                             downloadPath.setText("下载错误")
+                         }
+
+                         override fun done(file: File) {
+                             Toast.makeText(
+                                 this@MainActivity,
+                                 file.absolutePath,
+                                 Toast.LENGTH_SHORT
+                             ).show()
+                         }
+                     })*/
             }
         }
 

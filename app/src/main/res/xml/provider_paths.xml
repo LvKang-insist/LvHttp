@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <external-path
-        name="external_files"
+        name="rc_external_path"
+        path="." />
+    <root-path
+        name="rc_root_path"
+        path="" />
+    <external-path
+        name="com.www.lvhttp"
+        path="." />
+    <external-path
+        name="."
         path="." />
 </paths>

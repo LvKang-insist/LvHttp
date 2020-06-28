@@ -41,7 +41,7 @@ object DownLoadManager {
                     var emittedProcess = 0L
                     file.outputStream().use { output ->
                         body.byteStream().use { input ->
-                            input.copyTo(output) { bytesCopied ->
+                            input.copyTo1(output) { bytesCopied ->
                                 //计算百分比
                                 val progress = bytesCopied * 100 / total
                                 //当前的值大于上一次的就进行通知
@@ -69,7 +69,7 @@ object DownLoadManager {
     }
 }
 
-inline fun InputStream.copyTo(
+inline fun InputStream.copyTo1(
     out: OutputStream,
     bufferSize: Int = DEFAULT_BUFFER_SIZE,
     progress: (Long) -> Unit
