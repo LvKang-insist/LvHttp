@@ -12,7 +12,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.lifecycleScope
 import com.www.net.LvHttp
 import com.www.net.block
 import com.www.net.launchAfHttp

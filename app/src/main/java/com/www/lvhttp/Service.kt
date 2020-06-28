@@ -17,7 +17,5 @@ interface Service {
     suspend fun baidu(): Response<String>
 
 
-    @GET("users/rengwuxian/repos")
-    suspend fun hhhh(): Call<String>
 
 }
