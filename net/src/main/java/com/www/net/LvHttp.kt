@@ -1,98 +1,165 @@
 package com.www.net
 
-import androidx.lifecycle.LifecycleOwner
-import com.www.net.download.DownLoadLaunch
-import com.www.net.download.OnStateListener
-import com.www.net.get.GetRequest
-import com.www.net.post.PostRequest
-import com.www.net.postFile.ListFileRequest
-import com.www.net.postFile.MapFileRequest
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.toRequestBody
+import android.app.Application
+import com.www.net.error.ErrorDispose
+import com.www.net.error.ErrorKey
+import com.www.net.error.ErrorValue
+import okhttp3.Interceptor
+import okhttp3.internal.platform.Platform
+import retrofit2.Retrofit
+import java.lang.Exception
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
+import java.util.*
+import kotlin.math.log
 
-/**
- * 请求入口类
- */
+
 object LvHttp {
 
-    /**
-     * get 请求
-     */
-    fun get(url: String): GetRequest {
-        return GetRequest(url)
-    }
+    private val mController = LvController()
 
-    fun get(): GetRequest {
-        return GetRequest()
+    /**
+     * 获取 Retrofit
+     */
+    fun getRetrofit(): Retrofit {
+        return mController.retrofit
     }
 
     /**
-     * Post 请求，表单请求体
+     * 创建 API
      */
-    fun post(url: String): PostRequest {
-        return PostRequest(url, null)
-    }
-
-    fun post(): PostRequest {
-        return PostRequest()
+    fun <T> createApi(clazz: Class<T>): T {
+        return mController.newInstance(clazz)
     }
 
     /**
-     * 即非表单请求体，需要传入 json 传
+     * 获取 Application
      */
-    fun postRaw(url: String, raw: String): PostRequest {
-        return PostRequest(
-            url,
-            raw.toRequestBody("application/json;charset=urf-8".toMediaTypeOrNull())
-        )
-    }
-
-
-    /**
-     * 上传文件，文件类型为 key 对应多个 file
-     */
-    fun uploadListFile(url: String): ListFileRequest {
-        return ListFileRequest(url)
+    fun getAppContext(): Application {
+        return mController.appContext
     }
 
     /**
-     * 上传文件，一个 key 对应 一个 file
+     * 设置异常处理
+     * @param errorKey key
+     * @param errorValue value
      */
-    fun uploadMapFile(url: String): MapFileRequest {
-        return MapFileRequest(url)
+    fun setErrorDispose(errorKey: ErrorKey, errorValue: ErrorValue) {
+        mController.errorDisposes[errorKey] = errorValue
     }
 
+    /**
+     * @return 获取异常处理
+     */
+    fun getErrorDispose(errorKey: ErrorKey): ErrorValue? {
+        return mController.errorDisposes[errorKey]
+    }
 
     /**
-     * 并发请求，最多可并发两次
+     * @return 是否打印日志
      */
-    fun <T1, T2> zip(
-        pair: Pair<() -> T1, () -> T2>,
-        result: (Pair<T1?, T2?>) -> Unit
-    ) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val x = GlobalScope.async { pair.first() }
-            val y = GlobalScope.async { pair.second() }
-            launch(Dispatchers.Main) {
-                result(Pair(x.await(), y.await()))
-            }
+    fun getIsLogging(): Boolean {
+        return mController.isLogging
+    }
+
+    class Builder {
+        private var p: LvController.LvParams = LvController.LvParams()
+
+        fun setApplication(application: Application): Builder {
+            p.appContext = application
+            return this
         }
-    }
 
-    /**
-     * 文件下载
-     */
-    fun download(
-        owner: LifecycleOwner,
-        url: String,
-        fileName: String,
-        savePath: String,
-        stateListener: OnStateListener
-    ) {
-        DownLoadLaunch.create(owner, url, fileName, savePath, stateListener)
+        /**
+         * 设置 BaseUrl
+         */
+        fun setBaseUrl(baseUrl: String): Builder {
+            p.baseUrl = baseUrl
+            return this
+        }
+
+        /**
+         * 连接时间，秒为单位
+         */
+        fun setConnectTimeOut(connecTime: Long): Builder {
+            p.connectTimeOut = connecTime
+            return this
+        }
+
+        /**
+         * 下载响应的时候等待时间，秒为单位
+         */
+        fun setReadTimeOut(readTime: Long): Builder {
+            p.readTimeOut = readTime
+            return this
+        }
+
+        /**
+         * 写入请求的等待时间，秒为单位
+         */
+        fun setWirteTimeOut(writeTimeOut: Long): Builder {
+            p.writeTimeOut = writeTimeOut
+            return this
+        }
+
+        /**
+         * 是否打印 log
+         * @param logging true 表示打印
+         */
+        fun isLoging(logging: Boolean): Builder {
+            p.isLogging = logging
+            return this
+        }
+
+        /**
+         * 是否开启缓存，默认关闭
+         * @param iscache true 表示开启缓存
+         */
+        fun isCache(iscache: Boolean): Builder {
+            p.isCache = iscache
+            return this
+        }
+
+        /**
+         * 设置缓存大小，默认 20mb
+         * @param cacheSize 缓存大小
+         */
+        fun setCacheSize(cacheSize: Long): Builder {
+            p.cacheSize = cacheSize
+            return this
+        }
+
+        /**
+         * 添加拦截器
+         */
+        fun addInterceptor(interceptor: Interceptor): Builder {
+            p.interceptors.add(interceptor)
+            return this
+        }
+
+        /**
+         * 设置异常处理
+         */
+        fun setErrorDispose(errorKey: ErrorKey, errorValue: ErrorValue): Builder {
+            p.errorDisposes[errorKey] = errorValue
+            return this
+        }
+
+        /**
+         * 设置 Service
+         */
+        fun <T> setService(clazz: Class<T>): Builder {
+            p.clazz = clazz
+            return this
+        }
+
+        fun build() {
+            create()
+        }
+
+        private fun create(): Retrofit {
+            return p.apply(mController)
+        }
     }
 }
