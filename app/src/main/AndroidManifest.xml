@@ -27,9 +27,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Android7.0 增加文件访问功能 -->
+        </activity> <!-- Android7.0 增加文件访问功能 -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.www.lvhttp.FileProvider"

@@ -38,7 +38,7 @@ dependencies {
 
     //网络请求依赖
     api 'com.squareup.okhttp3:okhttp:4.3.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.3.0'
+    api 'com.squareup.okhttp3:logging-interceptor:4.3.0'
     api 'com.squareup.retrofit2:retrofit:2.7.2'
     api 'com.squareup.retrofit2:converter-gson:2.7.2'
 
@@ -50,11 +50,7 @@ dependencies {
 
     api "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
 
-    //liveData + ViewModel + lifecycle
-    implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.0-alpha04"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.0-alpha04"
-    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:2.3.0-alpha04"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-alpha04"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0-alpha04"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
 
 }

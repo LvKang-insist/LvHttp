@@ -1,5 +1,6 @@
 package com.www.net.param
 
+import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -13,6 +14,11 @@ import java.io.File
  * @time 2020/6/28 23:47
  * @description
  */
+
+fun createRequestBody(values:String): RequestBody {
+
+    RequestBody.create(MediaType.parse("application/"))
+}
 
 /**
  * 创建一个 value 为 RequestBody 的 map

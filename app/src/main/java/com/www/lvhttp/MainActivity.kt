@@ -59,22 +59,17 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun done(file: File) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        file.absolutePath,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    //完成
                 }
             })
     }
 
     private suspend fun upload() {
-        val path = Environment.getExternalStorageDirectory()
-        val file1 = File(path.path + "/image1.png")
+        val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
         val mutableMap = mutableMapOf<String, File>()
-        mutableMap["456"] = file1
+        mutableMap["file1"] = file1
+
         val loadBean = LvHttp.createApi(Service::class.java)
             .postFile(*createFilesParts(mutableMap))
-        Log.e("-------->", "upload: ${loadBean.toString()}")
     }
 }
