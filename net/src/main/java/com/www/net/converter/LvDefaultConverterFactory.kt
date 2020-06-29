@@ -17,7 +17,7 @@ import java.lang.reflect.Type
  * @package com.www.net.converter
  * @author 345 QQ:1831712732
  * @time 2020/6/22 20:21
- * @description
+ * @description ConverterFactory
  */
 class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
 
@@ -47,7 +47,9 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
 
         override fun convert(value: ResponseBody): T? {
             val string = value.string()
-            Log.e("LvHttp：type = $type", "  result = $string ")
+            if (LvHttp.getIsLogging()) {
+                Log.e("LvHttp：type = $type", "  result = $string ")
+            }
             if (type == String::class.java || type::class.java.isPrimitive) {
                 return string as T
             }

@@ -1,6 +1,7 @@
-package com.www.net
+package com.www.net.response
 
 import android.widget.Toast
+import com.www.net.LvHttp
 import com.www.net.error.CodeException
 import com.www.net.error.ErrorKey
 import kotlinx.coroutines.Dispatchers
@@ -64,7 +65,7 @@ suspend inline fun <T> ResponseData<T>.block(
             it(errorCode)
             return
         }
-        //Code 全局异常处理
+        //Code 异常处理
         LvHttp.getErrorDispose(ErrorKey.ErrorCode)?.error?.let {
             it(CodeException(errorCode))
             return

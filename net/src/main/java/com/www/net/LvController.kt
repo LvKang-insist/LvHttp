@@ -18,13 +18,14 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
+@Suppress("UNCHECKED_CAST")
 class LvController {
 
     lateinit var appContext: Application
     lateinit var retrofit: Retrofit
     private val mCache = mutableMapOf<String, Any>()
     val errorDisposes: MutableMap<ErrorKey, ErrorValue> = mutableMapOf()
-
+    var isLogging = false
 
     fun <T> newInstance(clazz: Class<T>): T {
         if (mCache[clazz.name] == null) {
@@ -84,6 +85,7 @@ class LvController {
             controller.mCache["Default"] = retrofit.create(clazz)
             controller.errorDisposes.clear()
             controller.errorDisposes.putAll(errorDisposes)
+            controller.isLogging = isLogging
             return retrofit
         }
     }

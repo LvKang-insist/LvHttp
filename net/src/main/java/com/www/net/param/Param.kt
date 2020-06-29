@@ -1,4 +1,4 @@
-package com.www.net.file
+package com.www.net.param
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -14,6 +14,18 @@ import java.io.File
  * @description
  */
 
+/**
+ * 创建一个 value 为 RequestBody 的 map
+ * 一般是用来创建请求参数的 map，其中 value 的类型为 RequestBody
+ */
+fun createParamsMap(params: MutableMap<String, Any>)
+        : MutableMap<String, RequestBody> {
+    val par: MutableMap<String, RequestBody> = mutableMapOf()
+    params.forEach {
+        par[it.key] = createStrRequestBody(it.value as String)
+    }
+    return par
+}
 
 /**
  * 创建一个 MultipartBody.part 类型的数组

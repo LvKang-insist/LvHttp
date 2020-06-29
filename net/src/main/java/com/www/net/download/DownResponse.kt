@@ -5,23 +5,32 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.www.net.LvHttp
 import com.www.net.utils.FileQUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
+import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.lang.Exception
 import java.lang.NullPointerException
+import java.text.DecimalFormat
 
+/**
+ * 文件下载的辅助类
+ * 在 Android Q 中：path 表示的路径为 根目录/dowload/path/name
+ * 在 Android Q 以下，path 表示的是 根目录/path/name
+ * 注意：name 后面需要加上后缀名
+ */
 abstract class DownResponse(val path: String, val name: String) {
     /**
      * 开始下载时调用
-     * @param size 文件大小（会有偏差）
+     * @param size 文件大小，MB 为单位（会有偏差）
      */
     open fun create(size: Float) = Unit
 
@@ -29,7 +38,7 @@ abstract class DownResponse(val path: String, val name: String) {
      * 文件下载进度
      * @param process 进度百分比
      */
-    open fun process(process: Int) = Unit
+    open fun process(process: Float) = Unit
 
     /**
      * 下载完成
@@ -54,11 +63,12 @@ suspend fun ResponseBody.start(downResponse: DownResponse) {
             val output = withMain { LvHttp.getAppContext().contentResolver.openOutputStream(this) }
             val file = FileQUtils.getFileByUri(this, LvHttp.getAppContext())
             if (output != null) {
-                download(byteStream(), output, downResponse)
+                download(byteStream(), output, downResponse, contentLength())
                 withMain { downResponse.done(file) }
+            } else {
+                file.delete()
             }
-        }
-            ?: withMain { downResponse.error(NullPointerException("LvHttp DownLoad ：文件路径找不到")) }
+        } ?: withMain { downResponse.error(NullPointerException("LvHttp DownLoad ：文件路径找不到")) }
     }
 
 }
@@ -66,28 +76,33 @@ suspend fun ResponseBody.start(downResponse: DownResponse) {
 private suspend inline fun download(
     input: InputStream,
     output: OutputStream,
-    downResponse: DownResponse
+    downResponse: DownResponse,
+    contentLength: Long
 ) {
-    //总字节数
-    val total = withMain {
-        input.available()
-    }
     //上次下载位置
-    var emittedProcess = 0
-    withMain { downResponse.create((total / 1024 / 1024).toFloat()) }
+    var emittedProcess = 0f
+    withMain {
+        downResponse.create(format((contentLength).toFloat() / 1024 / 1024))
+    }
     input.use {
         it.copyTo(output) { process ->
             //计算百分比
-            val progress = (process * 100 / total).toInt()
+            val progress = format((process).toFloat() * 100 / contentLength)
             //当前的值大于上一次的就进行通知
-            if (progress - emittedProcess > 1) {
+            if (progress - emittedProcess > 0) {
                 withMain { downResponse.process(progress) }
                 emittedProcess = progress
             }
         }
-        withMain { downResponse.process(100) }
-
+        withMain { downResponse.process(100f) }
     }
+}
+
+/**
+ * 保留 2为小数
+ */
+private fun format(float: Float): Float {
+    return DecimalFormat("#.00").format(float).toFloat()
 }
 
 private suspend fun <T> tryCache(response: DownResponse, block: suspend () -> T) {
@@ -145,5 +160,5 @@ fun saveFile(path: String, name: String): Uri? {
     if (!file.exists()) {
         file.mkdirs()
     }
-    return Uri.fromFile(File(file.parent!! + "/$path/$name"))
+    return Uri.fromFile(File(file.parent!! + "/" + path + "/" + name))
 }

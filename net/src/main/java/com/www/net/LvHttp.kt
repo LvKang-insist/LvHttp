@@ -42,16 +42,25 @@ object LvHttp {
 
     /**
      * 设置异常处理
+     * @param errorKey key
+     * @param errorValue value
      */
     fun setErrorDispose(errorKey: ErrorKey, errorValue: ErrorValue) {
         mController.errorDisposes[errorKey] = errorValue
     }
 
     /**
-     * 获取异常处理
+     * @return 获取异常处理
      */
     fun getErrorDispose(errorKey: ErrorKey): ErrorValue? {
         return mController.errorDisposes[errorKey]
+    }
+
+    /**
+     * @return 是否打印日志
+     */
+    fun getIsLogging(): Boolean {
+        return mController.isLogging
     }
 
     class Builder {
@@ -94,6 +103,10 @@ object LvHttp {
             return this
         }
 
+        /**
+         * 是否打印 log
+         * @param logging true 表示打印
+         */
         fun isLoging(logging: Boolean): Builder {
             p.isLogging = logging
             return this
@@ -101,6 +114,7 @@ object LvHttp {
 
         /**
          * 是否开启缓存，默认关闭
+         * @param iscache true 表示开启缓存
          */
         fun isCache(iscache: Boolean): Builder {
             p.isCache = iscache
@@ -109,6 +123,7 @@ object LvHttp {
 
         /**
          * 设置缓存大小，默认 20mb
+         * @param cacheSize 缓存大小
          */
         fun setCacheSize(cacheSize: Long): Builder {
             p.cacheSize = cacheSize
