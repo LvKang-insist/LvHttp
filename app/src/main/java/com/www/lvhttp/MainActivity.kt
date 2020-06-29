@@ -9,16 +9,15 @@ import androidx.appcompat.app.AppCompatActivity
 import com.www.net.LvHttp
 import com.www.net.download.DownResponse
 import com.www.net.download.start
-import com.www.net.param.createFilesParts
+import com.www.net.param.createParts
 import com.www.net.launchAfHttp
+import com.www.net.param.createPart
 import com.www.net.response.resultMain
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
-
-    lateinit var job: Job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,9 +26,9 @@ class MainActivity : AppCompatActivity() {
 
         test.setOnClickListener {
             launchAfHttp {
-                LvHttp.createApi(Service::class.java).get().resultMain {
-                    Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
-                }
+//                get()
+//                post()
+                upload()
             }
         }
 
@@ -39,6 +38,21 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private suspend fun get() {
+        LvHttp.createApi(Service::class.java).get().resultMain {
+            Log.e("---------->", "get: ${it.toString()}")
+        }
+    }
+
+    private suspend fun post() {
+        LvHttp.createApi(Service::class.java).login("15129379467", "123456789")
+            .resultMain(error = { _, message ->
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            }) {
+                Log.e("---------->", "post: ${it.toString()}")
+            }
     }
 
     private suspend fun dowload() {
@@ -66,10 +80,16 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun upload() {
         val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
-        val mutableMap = mutableMapOf<String, File>()
-        mutableMap["file1"] = file1
+        val file2 = File(Environment.getExternalStorageDirectory().path, "/image2.png")
 
-        val loadBean = LvHttp.createApi(Service::class.java)
-            .postFile(*createFilesParts(mutableMap))
+        /*val loadBean1 = LvHttp.createApi(Service::class.java)
+            .postFile(
+                *createParts(
+                    mapOf("key1" to file1, "key2" to file2)
+                )
+            )*/
+
+        val loadBean2 = LvHttp.createApi(Service::class.java)
+            .postFile(createPart("key", file2))
     }
 }

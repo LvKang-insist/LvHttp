@@ -16,14 +16,14 @@ import kotlinx.coroutines.withContext
  *              可仿照当前类自定义 Response 的扩展
  */
 
-data class ResponseData<T>(val data: T, val errorCode: Int, val errorMsg: String)
+data class ResponseData<T>(val data: T? = null, val errorCode: Int, val errorMsg: String)
 
 /**
  * 同步扩展
  */
 suspend inline fun <T> ResponseData<T>.result(
     isToast: Boolean = true,
-    noinline error: ((Int) -> Unit?)? = null,
+    noinline error: ((Int, String) -> Unit?)? = null,
     noinline block: (T) -> Unit
 ) {
     block(isToast, error, block)
@@ -35,7 +35,7 @@ suspend inline fun <T> ResponseData<T>.result(
  */
 suspend inline fun <T> ResponseData<T>.resultIO(
     isToast: Boolean = true,
-    noinline error: ((Int) -> Unit?)? = null,
+    noinline error: ((Int, String) -> Unit?)? = null,
     noinline block: (T) -> Unit
 ) {
     withContext(Dispatchers.IO) { block(isToast, error, block) }
@@ -46,7 +46,7 @@ suspend inline fun <T> ResponseData<T>.resultIO(
  */
 suspend inline fun <T> ResponseData<T>.resultMain(
     isToast: Boolean = true,
-    noinline error: ((Int) -> Unit?)? = null,
+    noinline error: ((Int, String) -> Unit?)? = null,
     noinline block: (T) -> Unit
 ) {
     withContext(Dispatchers.Main) { block(isToast, error, block) }
@@ -57,17 +57,17 @@ suspend inline fun <T> ResponseData<T>.resultMain(
  */
 suspend inline fun <T> ResponseData<T>.block(
     isToast: Boolean = true,
-    noinline error: ((Int) -> Unit?)? = null,
+    noinline error: ((Int, String) -> Unit?)? = null,
     block: (T) -> Unit
 ) {
-    if (errorCode == 0) {
+    if (errorCode != 0) {
         error?.let {
-            it(errorCode)
+            it(errorCode, errorMsg)
             return
         }
         //Code 异常处理
         LvHttp.getErrorDispose(ErrorKey.ErrorCode)?.error?.let {
-            it(CodeException(errorCode))
+            it(CodeException(errorCode, errorMsg))
             return
         }
         if (isToast) {
@@ -76,6 +76,6 @@ suspend inline fun <T> ResponseData<T>.block(
             }
         }
     } else {
-        block(data)
+        block(data!!)
     }
 }

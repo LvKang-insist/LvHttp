@@ -9,4 +9,4 @@ import java.lang.Exception
  * @time 2020/6/27 18:25
  * @description
  */
-class CodeException(val code: Int) : Exception("Code 异常：$code")
+class CodeException(private val code: Int, private val mssage: String) : Exception("Code 异常：$code")

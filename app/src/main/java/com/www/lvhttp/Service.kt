@@ -12,15 +12,21 @@ interface Service {
     /**
      * 普通请求
      */
-    @GET("https://wanandroid.com/wxarticle/chapters/json")
+    @GET("wxarticle/chapters/json")
     suspend fun get(): ResponseData<Bean>
 
-    @GET("users/rengwuxian/repos")
-    suspend fun baidu(): Response<String>
+    @FormUrlEncoded
+    @POST("user/login")
+    suspend fun login(
+        @Field("username") userName: String,
+        @Field("password") passWord: String
+    ): ResponseData<Bean>
+
 
     @Streaming
     @GET("https://www.nuli100.com/CBY_PD/Public/appapk/app_customer.apk")
     suspend fun download(): ResponseBody
+
 
     /**
      * post：文件

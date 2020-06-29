@@ -12,7 +12,7 @@ class BaseApplication : Application() {
 
         LvHttp.Builder()
             .setApplication(this)
-            .setBaseUrl("https://api.github.com/")
+            .setBaseUrl("https://www.wanandroid.com")
             .isCache(false)
             .isLoging(true)
             .setService(Service::class.java)
