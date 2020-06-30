@@ -99,15 +99,21 @@ launchAfHttp {
 ### POST
 
 ```kotlin
-@POST
 @FormUrlEncoded
-fun post(@Url url: String, @Body params: MutableMap<String, String>): ResponseData<LoginBean>
+    @POST("user/login")
+    suspend fun login(
+        @Field("username") userName: String,
+        @Field("password") passWord: String
+    ): ResponseData<Bean>
 ```
 
 ```kotlin
-LvHttp.createApi(Services::class.java).post("login", map).resultMain { 
-    //.....
-}
+LvHttp.createApi(Service::class.java).login("15129379467", "123456")
+            .resultMain(error = { _, message ->
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            }) {
+                Log.e("---------->", "post: ${it.toString()}")
+            }
 ```
 
 ### 文件下载
@@ -159,12 +165,25 @@ suspend fun postFile(@Part vararg file: MultipartBody.Part): UpLoadBean
 
 ```kotlin
 val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
-val mutableMap = mutableMapOf<String, File>()
-mutableMap["file1"] = file1
-
-val loadBean = LvHttp.createApi(Service::class.java)
-    .postFile(*createFilesParts(mutableMap))
+    val loadBean2 = LvHttp.createApi(Service::class.java)
+            .postFile(createPart("key", file2))
 ```
+
+上传多个文件
+
+```kotlin
+ val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
+ val file2 = File(Environment.getExternalStorageDirectory().path, "/image2.png")
+        
+ val loadBean = LvHttp.createApi(Service::class.java)
+     .postFile(
+          *createParts(
+               mapOf("key1" to file1, "key2" to file2)
+           )
+      )
+```
+
+
 
 自定义 Response
 
@@ -173,4 +192,3 @@ val loadBean = LvHttp.createApi(Service::class.java)
 ​	其中 [ResponseData](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/www/net/response/ResponseData.kt) 对应的数据类型为 [Data](https://wanandroid.com/wxarticle/chapters/json)
 
 ​	ResponseData 中的 T 可参考 [Bean](https://github.com/LvKang-insist/LvHttp/blob/master/app/src/main/java/com/www/lvhttp/Data.kt)
- 
