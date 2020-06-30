@@ -22,6 +22,7 @@ object LvHttp {
     /**
      * 获取 Retrofit
      */
+    @JvmStatic
     fun getRetrofit(): Retrofit {
         return mController.retrofit
     }
@@ -29,15 +30,9 @@ object LvHttp {
     /**
      * 创建 API
      */
+    @JvmStatic
     fun <T> createApi(clazz: Class<T>): T {
         return mController.newInstance(clazz)
-    }
-
-    /**
-     * 获取 Application
-     */
-    fun getAppContext(): Application {
-        return mController.appContext
     }
 
     /**
@@ -45,6 +40,7 @@ object LvHttp {
      * @param errorKey key
      * @param errorValue value
      */
+    @JvmStatic
     fun setErrorDispose(errorKey: ErrorKey, errorValue: ErrorValue) {
         mController.errorDisposes[errorKey] = errorValue
     }
@@ -52,6 +48,7 @@ object LvHttp {
     /**
      * @return 获取异常处理
      */
+    @JvmStatic
     fun getErrorDispose(errorKey: ErrorKey): ErrorValue? {
         return mController.errorDisposes[errorKey]
     }
@@ -61,6 +58,13 @@ object LvHttp {
      */
     fun getIsLogging(): Boolean {
         return mController.isLogging
+    }
+
+    /**
+     * 获取 Application
+     */
+    fun getAppContext(): Application {
+        return mController.appContext
     }
 
     class Builder {

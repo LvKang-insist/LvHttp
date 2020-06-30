@@ -1,6 +1,7 @@
 package com.www.lvhttp
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -9,12 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.www.net.LvHttp
 import com.www.net.download.DownResponse
 import com.www.net.download.start
-import com.www.net.param.createParts
-import com.www.net.launchAfHttp
+import com.www.net.launch.launchAfHttp
 import com.www.net.param.createPart
 import com.www.net.response.resultMain
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.*
 import java.io.File
 
 class MainActivity : AppCompatActivity() {

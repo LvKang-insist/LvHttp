@@ -1,13 +1,12 @@
-package com.www.net
+package com.www.net.launch
 
-import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import com.www.net.LvHttp
 import com.www.net.error.ErrorKey
 import kotlinx.coroutines.*
-import okhttp3.ConnectionSpec
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
@@ -19,8 +18,47 @@ import kotlin.coroutines.CoroutineContext
  * @description
  */
 
+/**
+ * 适用于在 Activity/Fragment 中调用
+ */
+fun LifecycleOwner.launchAfHttp(
+    context: CoroutineContext = Dispatchers.IO,
+    error: (suspend (Throwable) -> Unit)? = null,
+    finally: (suspend () -> Unit)? = null,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    lifecycleScope.launch(context) {
+        tryCatch(error, finally, block)
+    }
+}
 
-suspend fun tryCache(
+/**
+ * 适用于在 ViewModel 中调用
+ */
+fun ViewModel.launchVmHttp(
+    context: CoroutineContext = Dispatchers.IO,
+    error: (suspend (Throwable) -> Unit)? = null,
+    finally: (suspend () -> Unit)? = null,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    viewModelScope.launch {
+        tryCatch(error, finally, block)
+    }
+}
+
+/**
+ *  通常情况下，不推荐使用这种方式，可能会造成内存泄漏
+ *  如：UI 已经被销毁了，而耗时操作没有完成。
+ */
+suspend fun launchHttp(
+    error: (suspend (Throwable) -> Unit)? = null,
+    finally: (suspend () -> Unit)? = null,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    tryCatch(error, finally, block)
+}
+
+private suspend fun tryCatch(
     error: (suspend (Throwable) -> Unit)? = null,
     finally: (suspend () -> Unit)? = null,
     block: suspend CoroutineScope.() -> Unit
@@ -49,36 +87,13 @@ suspend fun tryCache(
             e.printStackTrace()
         }
     } finally {
-        finally?.let { it() }
+        finally?.let {
+            withContext(Dispatchers.Main) {
+                it()
+            }
+        }
     }
 }
 
-/**
- * 适用于在 Activity/Fragment 中调用
- */
-fun LifecycleOwner.launchAfHttp(
-    context: CoroutineContext = Dispatchers.IO,
-    error: (suspend (Throwable) -> Unit)? = null,
-    finally: (suspend () -> Unit)? = null,
-    block: suspend CoroutineScope.() -> Unit
-) {
-    lifecycleScope.launch(context) {
-        tryCache(error, finally, block)
-    }
-}
-
-/**
- * 适用于在 ViewModel 中调用
- */
-fun ViewModel.launchVmHttp(
-    context: CoroutineContext = Dispatchers.IO,
-    error: (suspend (Throwable) -> Unit)? = null,
-    finally: (suspend () -> Unit)? = null,
-    block: suspend CoroutineScope.() -> Unit
-) {
-    viewModelScope.launch {
-        tryCache(error, finally, block)
-    }
-}
 
 
