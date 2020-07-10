@@ -7,6 +7,11 @@ import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.cloudx.core.LiveConfig
+import com.cloudx.core.LiveHttp
+import com.cloudx.core.file.DownloadFileKtx
+import com.cloudx.core.file.over
+import com.cloudx.core.file.overSchedule
 import com.www.net.LvHttp
 import com.www.net.download.DownResponse
 import com.www.net.download.start
@@ -25,9 +30,9 @@ class MainActivity : AppCompatActivity() {
 
         test.setOnClickListener {
             launchAfHttp {
-//                get()
+                get()
 //                post()
-                upload()
+//                upload()
             }
         }
 
@@ -41,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun get() {
         LvHttp.createApi(Service::class.java).get().resultMain {
-            Log.e("---------->", "get: ${it.toString()}")
+            Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 

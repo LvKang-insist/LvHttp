@@ -39,7 +39,6 @@ class LvController {
 
     class LvParams {
         lateinit var baseUrl: String
-        lateinit var clazz: Class<*>
         lateinit var appContext: Application
         var connectTimeOut: Long = 10
         var readTimeOut: Long = 10
@@ -82,7 +81,6 @@ class LvController {
 
             controller.retrofit = retrofit
             controller.appContext = appContext
-            controller.mCache["Default"] = retrofit.create(clazz)
             controller.errorDisposes.clear()
             controller.errorDisposes.putAll(errorDisposes)
             controller.isLogging = isLogging

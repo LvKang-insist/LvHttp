@@ -145,10 +145,14 @@ private inline fun InputStream.copyTo(
 fun saveQ(path: String, name: String): Uri? {
     val values = ContentValues()
     values.put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-    values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/$path/")
-    return LvHttp.getAppContext().contentResolver.insert(
-        MediaStore.Downloads.EXTERNAL_CONTENT_URI, values
-    )
+    values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/")
+
+    val external = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+    val resolver = LvHttp.getAppContext().contentResolver
+    val insertUri = resolver.insert(external, values)
+
+    Log.e("------------<>", "saveQ: $insertUri")
+    return insertUri
 }
 
 /**

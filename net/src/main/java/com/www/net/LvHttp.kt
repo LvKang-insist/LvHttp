@@ -150,14 +150,6 @@ object LvHttp {
             return this
         }
 
-        /**
-         * 设置 Service
-         */
-        fun <T> setService(clazz: Class<T>): Builder {
-            p.clazz = clazz
-            return this
-        }
-
         fun build() {
             create()
         }
