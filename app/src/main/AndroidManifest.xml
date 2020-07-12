@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.www.lvhttp">
+    package="com.lvhttp.test">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <application
-        android:name=".BaseApplication"
+        android:name="com.lvhttp.test.BaseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -21,7 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.lvhttp.test.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +30,7 @@
         </activity> <!-- Android7.0 增加文件访问功能 -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.www.lvhttp.FileProvider"
+            android:authorities="com.lvhttp.test.FileProvider"
             android:exported="false"
             android:grantUriPermissions="true"
             tools:ignore="WrongManifestParent">
