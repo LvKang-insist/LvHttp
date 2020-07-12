@@ -7,7 +7,7 @@
         name="rc_root_path"
         path="" />
     <external-path
-        name="com.www.lvhttp"
+        name="com.lvhttp.test"
         path="." />
     <external-path
         name="."
