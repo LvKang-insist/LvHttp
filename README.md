@@ -25,11 +25,45 @@ allprojects {
 }
 ```
 
-```java
+```groovy
 dependencies {
-	  implementation 'com.github.LvKang-insist:LvHttp:*****'
+	  implementation 'com.github.LvKang-insist:LvHttp:1.1.4'
 }
 ```
+
+### 请自行导入以下组件
+
+```groovy
+//网络请求依赖
+implementation 'com.squareup.okhttp3:okhttp:4.3.0'
+implementation 'com.squareup.okhttp3:logging-interceptor:4.3.0'
+implementation 'com.squareup.retrofit2:retrofit:2.7.2'
+implementation 'com.squareup.retrofit2:converter-gson:2.7.2'
+//协程基础库
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5"
+//协程 Android 库，提供 UI 调度器
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4"
+```
+
+### 关于启动方式
+
+库中提供了三种请求的方式：
+
+- launchAfHttp
+
+   适用于在 Activity/Fragment 中调用。当 actvity 销毁后，该请求会被取消
+
+- launchVmHttp
+
+   适用于在 ViewModel 中调用。当 ViewModel 被清除时，该请求会被取消
+
+- launchHttp
+
+   没有做处理的请求。通常情况下，不推荐使用这种方式，可能会造成内存泄漏*  如：UI 已经被销毁了，而耗时操作没有完成
+
+- 直接使用 LvHttp 进行请求
+
+   这种方式是非常不推荐的，因为没有对异常进行处理，任何网络异常都有可能会导致程序崩溃
 
 ### 初始化
 
@@ -116,6 +150,17 @@ LvHttp.createApi(Service::class.java).login("15129379467", "123456")
             }
 ```
 
+看起来有点麻烦，是因为处理了异常，其实异常可以在初始化的时候指定需要处理的异常，或者是处理全局异常。在初始化中处理了异常之后，可以使用非常简洁的方式，如下：
+
+```kotlin
+launchAfHttp {
+    LvHttp.createApi(Service::class.java).login("15129379467", "123456789")
+                .resultMain {
+                    Log.e("---------->", "post: ${it.toString()}")
+                }
+}
+```
+
 ### 文件下载
 
 ```kotlin
@@ -152,7 +197,7 @@ LvHttp.createApi(Service::class.java).download()
 在 Android Q 以下，path 表示的是 根目录/path/name
 注意：name 后面需要加上后缀名
 
-#### 文件上传
+### 文件上传
 
 ```kotlin
 /**
@@ -185,7 +230,7 @@ val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
 
 
 
-自定义 Response
+### 自定义 Response
 
 ​	参考 [ResponseData](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/www/net/response/ResponseData.kt) 更改即可
 
