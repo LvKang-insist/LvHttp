@@ -11,8 +11,8 @@
         android:id="@+id/test"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="测试"
         android:layout_marginTop="20dp"
+        android:text="测试"
         android:textAllCaps="false" />
 
     <androidx.appcompat.widget.AppCompatEditText
@@ -29,10 +29,10 @@
         android:id="@+id/fileName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="20dp"
         android:layout_marginTop="20dp"
-        android:paddingRight="20dp"
         android:hint="文件名字"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:textColor="#000000"
         android:textSize="25sp" />
 
@@ -41,19 +41,25 @@
         android:id="@+id/downloadButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="DownLoad"
         android:layout_marginTop="20dp"
+        android:text="DownLoad"
         android:textAllCaps="false" />
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/downloadPath"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:textColor="#000000"
-        android:layout_marginTop="20dp"
         android:textSize="25sp"
         android:textStyle="bold" />
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="200dp"
+        android:id="@+id/image"
+        android:layout_height="200dp" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

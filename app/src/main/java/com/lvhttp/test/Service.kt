@@ -31,7 +31,7 @@ interface Service {
      * post：文件
      */
     @Multipart
-    @POST("http://192.168.43.253:80/test/updata.php")
+    @POST("http://192.168.152.253:80/test/updata.php")
     suspend fun postFile(@Part vararg file: MultipartBody.Part): UpLoadBean
 
     /**
