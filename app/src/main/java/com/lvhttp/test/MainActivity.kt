@@ -49,9 +49,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun get() {
-        LvHttp.createApi(Service::class.java).get().resultMain {
-            Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
-        }
+//        LvHttp.createApi(Service::class.java).get().resultMain {
+//            Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
+//        }
     }
 
     private suspend fun post() {
@@ -90,9 +90,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun upload() {
         ImageSelector.builder()
-            .useCamera(true) // 设置是否使用拍照
-            .setSingle(true)  //设置是否单选
-            .setCrop(true)
+//            .useCamera(true) // 设置是否使用拍照
+//            .setSingle(true)  //设置是否单选
+//            .setCrop(true)
+            .onlyTakePhoto(true)
             .start(this, 0x0001)
 
     }

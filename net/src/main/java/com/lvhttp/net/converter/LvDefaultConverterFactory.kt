@@ -53,9 +53,6 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
             if (type == String::class.java || type::class.java.isPrimitive) {
                 return string as T
             }
-            if (type == ResponseBody::class.java) {
-                return value as T
-            }
             return gson.fromJson(string, type)
         }
 

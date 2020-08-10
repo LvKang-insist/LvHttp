@@ -11,8 +11,8 @@ interface Service {
     /**
      * 普通请求
      */
-    @GET("wxarticle/chapters/json")
-    suspend fun get(): ResponseData<Bean>
+    @GET("http://192.168.199.111/CAIFU/index.php?m=App&c=APIStaff&a=addressBookList&tokenId=3713b1fb664270d53f32a2cc46a68434")
+    suspend fun get(): String
 
     @FormUrlEncoded
     @POST("user/login")
