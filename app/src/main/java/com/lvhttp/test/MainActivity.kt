@@ -20,8 +20,9 @@ import com.lvhttp.net.download.start
 import com.lvhttp.net.launch.launchAfHttp
 import com.lvhttp.net.param.createPart
 import com.lvhttp.net.response.resultMain
-import com.lvhttp.net.utils.FileQUtils
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.*
 
 
@@ -33,11 +34,11 @@ class MainActivity : AppCompatActivity() {
 
 
         test.setOnClickListener {
-//            launchAfHttp {
-//                get()
+            launchAfHttp {
+                get()
 //                post()
-            upload()
-//            }
+//            upload()
+            }
         }
 
         downloadButton.setOnClickListener {
@@ -49,17 +50,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun get() {
-//        LvHttp.createApi(Service::class.java).get().resultMain {
-//            Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
-//        }
+        LvHttp.createApi(Service::class.java).get().resultMain {
+            Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private suspend fun post() {
         launchAfHttp {
             LvHttp.createApi(Service::class.java)
-                .login("15129379467", "123456789")
+                .login("15129379467", "147258369")
                 .resultMain {
-                    Log.e("---------->", "post: ${it.toString()}")
+                    Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
                 }
         }
 

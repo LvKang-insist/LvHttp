@@ -4,6 +4,7 @@ package com.lvhttp.test
 import com.lvhttp.net.response.ResponseData
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.Response
 import okhttp3.ResponseBody
 import retrofit2.http.*
 
@@ -11,15 +12,15 @@ interface Service {
     /**
      * 普通请求
      */
-    @GET("http://192.168.199.111/CAIFU/index.php?m=App&c=APIStaff&a=addressBookList&tokenId=3713b1fb664270d53f32a2cc46a68434")
-    suspend fun get(): String
+    @GET("wxarticle/chapters/json")
+    suspend fun get(): ResponseData<ArticleBean>
 
     @FormUrlEncoded
     @POST("user/login")
     suspend fun login(
         @Field("username") userName: String,
         @Field("password") passWord: String
-    ): ResponseData<Bean>
+    ): ResponseData<LoginBean>
 
 
     @Streaming

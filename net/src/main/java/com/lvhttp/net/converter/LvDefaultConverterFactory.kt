@@ -1,16 +1,18 @@
 package com.lvhttp.net.converter
 
+import android.annotation.TargetApi
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.lvhttp.net.LvHttp
-
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
+import retrofit2.http.Body
 import java.lang.reflect.Type
+
 
 /**
  * @name LvConverterFactory
@@ -19,7 +21,12 @@ import java.lang.reflect.Type
  * @time 2020/6/22 20:21
  * @description ConverterFactory
  */
+@Suppress("UNCHECKED_CAST")
 class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
+
+    @Target(AnnotationTarget.VALUE_PARAMETER)
+    @Retention(AnnotationRetention.RUNTIME)
+    internal annotation class Chunked
 
     companion object {
         fun create(gson: Gson): LvDefaultConverterFactory {
@@ -33,11 +40,22 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
         return LvResponseBodyConverter<Any>(gson, type)
     }
 
+
     override fun requestBodyConverter(
         type: Type, parameterAnnotations: Array<Annotation>, methodAnnotations: Array<Annotation>,
         retrofit: Retrofit
     ): Converter<*, RequestBody>? {
-        return LvResponseBodyConverter(gson, type)
+        var isBody = false
+        var isChunked = false
+        for (annotation in parameterAnnotations) {
+            isBody = isBody or (annotation is Body)
+            isChunked = isChunked or (annotation is Chunked)
+        }
+        return if (!isBody || !isChunked) {
+            null
+        } else null
+
+
     }
 
 
@@ -48,7 +66,7 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
         override fun convert(value: ResponseBody): T? {
             val string = value.string()
             if (LvHttp.getIsLogging()) {
-                Log.e("LvHttp：type = $type", "  result = $string ")
+                Log.e("LvHttp：type = $type \n", "  result = $string ")
             }
             if (type == String::class.java || type::class.java.isPrimitive) {
                 return string as T

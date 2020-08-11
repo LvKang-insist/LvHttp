@@ -9,7 +9,7 @@ package com.lvhttp.test
  * @time 2020/6/26 22:47
  * @description
  */
-class Bean : ArrayList<Bean.BeanItem>() {
+class ArticleBean : ArrayList<ArticleBean.BeanItem>() {
     data class BeanItem(
         val children: List<Any>,
         val courseId: Int, // 13
