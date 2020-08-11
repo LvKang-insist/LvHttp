@@ -1,11 +1,19 @@
 package com.lvhttp.test
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.donkingliang.imageselector.utils.ImageSelector
+import com.donkingliang.imageselector.utils.UriUtils
+import com.donkingliang.imageselector.utils.VersionUtils
 import com.lvhttp.net.LvHttp
 import com.lvhttp.net.download.DownResponse
 import com.lvhttp.net.download.start
@@ -13,7 +21,10 @@ import com.lvhttp.net.launch.launchAfHttp
 import com.lvhttp.net.param.createPart
 import com.lvhttp.net.response.resultMain
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             launchAfHttp {
                 get()
 //                post()
-//                upload()
+//            upload()
             }
         }
 
@@ -40,17 +51,19 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun get() {
         LvHttp.createApi(Service::class.java).get().resultMain {
-            Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 
     private suspend fun post() {
-        LvHttp.createApi(Service::class.java).login("15129379467", "123456789")
-            .resultMain(error = { _, message ->
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-            }) {
-                Log.e("---------->", "post: ${it.toString()}")
-            }
+        launchAfHttp {
+            LvHttp.createApi(Service::class.java)
+                .login("15129379467", "147258369")
+                .resultMain {
+                    Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
+                }
+        }
+
     }
 
     private suspend fun dowload() {
@@ -76,18 +89,58 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
-    private suspend fun upload() {
-        val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
-        val file2 = File(Environment.getExternalStorageDirectory().path, "/image2.png")
+    private fun upload() {
+        ImageSelector.builder()
+//            .useCamera(true) // 设置是否使用拍照
+//            .setSingle(true)  //设置是否单选
+//            .setCrop(true)
+            .onlyTakePhoto(true)
+            .start(this, 0x0001)
 
-        /*val loadBean1 = LvHttp.createApi(Service::class.java)
-            .postFile(
-                *createParts(
-                    mapOf("key1" to file1, "key2" to file2)
-                )
-            )*/
-
-        val loadBean2 = LvHttp.createApi(Service::class.java)
-            .postFile(createPart("key", file2))
     }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 0x0001 && data != null) {
+            val array = data.getStringArrayListExtra(ImageSelector.SELECT_RESULT)
+            val file = File(array[0])
+            Log.e("-------", array[0])
+
+            Glide.with(this)
+                .load(file)
+                .into(image)
+
+
+            launchAfHttp {
+                val loadBean2 = LvHttp.createApi(Service::class.java)
+                    .postFile(createPart("key", file!!))
+                Log.e("------------->", "upload: $loadBean2")
+            }
+        }
+    }
+
+
+    fun copyUriToExternalFilesDir(uri: Uri, fileName: String): File? {
+        val inputStream = contentResolver.openInputStream(uri)
+        val tempDir = getExternalFilesDir("temp")
+        if (inputStream != null && tempDir != null) {
+            val file = File("$tempDir/$fileName")
+            val fos = FileOutputStream(file)
+            val bis = BufferedInputStream(inputStream)
+            val bos = BufferedOutputStream(fos)
+            val byteArray = ByteArray(1024)
+            var bytes = bis.read(byteArray)
+            while (bytes > 0) {
+                bos.write(byteArray, 0, bytes)
+                bos.flush()
+                bytes = bis.read(byteArray)
+            }
+            bos.close()
+            fos.close()
+            return file
+        }
+        return null
+    }
+
 }

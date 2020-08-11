@@ -12,7 +12,7 @@ class BaseApplication : Application() {
 
         LvHttp.Builder()
             .setApplication(this)
-            .setBaseUrl("https://www.wanandroid.com")
+            .setBaseUrl("https://www.wanandroid.com/")
             .isCache(false)
             .isLoging(true)
             .setErrorDispose(ErrorKey.ErrorCode, ErrorValue {
