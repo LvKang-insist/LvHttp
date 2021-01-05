@@ -1,5 +1,7 @@
 package com.lvhttp.net.error
 
+import androidx.lifecycle.MutableLiveData
+
 /**
  * @name ErrorKey
  * @package com.www.net.error
@@ -13,7 +15,6 @@ enum class ErrorKey {
      * 全局异常处理
      */
     AllEexeption,
-
 
     /**
      *  自定义 Code 异常

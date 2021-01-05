@@ -1,10 +1,11 @@
 package com.lvhttp.test
 
 
+import com.lvhttp.net.converter.Chunked
+import com.lvhttp.net.response.BaseResponse
 import com.lvhttp.net.response.ResponseData
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import okhttp3.Response
 import okhttp3.ResponseBody
 import retrofit2.http.*
 
@@ -32,8 +33,12 @@ interface Service {
      * post：文件
      */
     @Multipart
-    @POST("http://192.168.152.253:80/test/updata.php")
-    suspend fun postFile(@Part vararg file: MultipartBody.Part): UpLoadBean
+    @POST("http://192.168.23.253:80/test/updata.php")
+    suspend fun postFile(@Chunked @Part vararg file: MultipartBody.Part): UpLoadBean
+
+    @Multipart
+    @POST("http://192.168.23.253:80/test/updata.php")
+    suspend fun file(@Body requestBody: RequestBody): ResponseBody
 
     /**
      * post:请求参数+文件

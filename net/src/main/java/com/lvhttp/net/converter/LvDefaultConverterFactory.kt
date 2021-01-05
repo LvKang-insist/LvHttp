@@ -1,13 +1,15 @@
 package com.lvhttp.net.converter
 
-import android.annotation.TargetApi
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.lvhttp.net.LvHttp
+import okhttp3.MediaType
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import okio.BufferedSink
+import okio.Okio
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.http.Body
@@ -24,9 +26,10 @@ import java.lang.reflect.Type
 @Suppress("UNCHECKED_CAST")
 class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
 
-    @Target(AnnotationTarget.VALUE_PARAMETER)
-    @Retention(AnnotationRetention.RUNTIME)
-    internal annotation class Chunked
+
+//    var requestBody: RequestBody? = null
+
+    var bufferedSink: BufferedSink? = null
 
     companion object {
         fun create(gson: Gson): LvDefaultConverterFactory {
@@ -51,11 +54,39 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
             isBody = isBody or (annotation is Body)
             isChunked = isChunked or (annotation is Chunked)
         }
-        return if (!isBody || !isChunked) {
-            null
-        } else null
 
 
+        val delegate: Converter<Any, RequestBody> = retrofit.nextRequestBodyConverter(
+            this,
+            type,
+            parameterAnnotations,
+            methodAnnotations
+        )
+        return LvRequestConverter(delegate)
+
+    }
+
+    inner class LvRequestConverter(val delegate: Converter<Any, RequestBody>) :
+        Converter<Any, RequestBody> {
+
+        override fun convert(value: Any): RequestBody? {
+            return object : RequestBody() {
+
+                val requestBody = delegate.convert(value)
+
+                override fun contentType(): MediaType? {
+                    return requestBody?.contentType()
+                }
+
+                override fun contentLength(): Long {
+                    return requestBody?.contentLength() ?: 0
+                }
+
+                override fun writeTo(sink: BufferedSink) {
+                    requestBody?.writeTo(sink)
+                }
+            }
+        }
     }
 
 
@@ -66,7 +97,7 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
         override fun convert(value: ResponseBody): T? {
             val string = value.string()
             if (LvHttp.getIsLogging()) {
-                Log.e("LvHttp：type = $type \n", "  result = $string ")
+                Log.e("LvHttp：type = $type", "\n  result = $string ")
             }
             if (type == String::class.java || type::class.java.isPrimitive) {
                 return string as T
