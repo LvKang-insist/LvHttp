@@ -16,6 +16,9 @@ interface Service {
     @GET("wxarticle/chapters/json")
     suspend fun get(): ResponseData<ArticleBean>
 
+    @GET("wxarticle/chapters/json")
+    suspend fun get2(): Bean
+
     @FormUrlEncoded
     @POST("user/login")
     suspend fun login(
@@ -25,7 +28,7 @@ interface Service {
 
 
     @Streaming
-    @GET("https://www.nuli100.com/CBY_PD/Public/appapk/app_customer.apk")
+    @GET("https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz")
     suspend fun download(): ResponseBody
 
 

@@ -45,8 +45,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         test.setOnClickListener {
-            launchAf({
-                LvHttp.createApi(Service::class.java).get()
+            launchAfHttp({
+                LvHttp.createApi(Service::class.java).get2()
             }) {
                 when (it) {
                     is ResultState.SuccessState -> {
@@ -62,7 +62,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         downloadButton.setOnClickListener {
-            launchAf3 {
+
+            launchAfHttp({
                 LvHttp.createApi(Service::class.java).download()
                     .start(object : DownResponse("LvHttp", "chebangyang.apk") {
                         override fun create(size: Float) {
@@ -81,10 +82,34 @@ class MainActivity : AppCompatActivity() {
 
                         override fun done(file: File) {
                             //完成
+                            Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
                         }
                     })
-            }
+            })
+
+//            launchAf3 {
+//                LvHttp.createApi(Service::class.java).download()
+//                    .start(object : DownResponse("LvHttp", "chebangyang.apk") {
+//                        override fun create(size: Float) {
+//                            Log.e("-------->", "create:总大小 ${(size)} ")
+//                        }
+//
+//                        @SuppressLint("SetTextI18n")
+//                        override fun process(process: Float) {
+//                            downloadPath.setText("$process %")
+//                        }
+//
+//                        override fun error(e: Exception) {
+//                            e.printStackTrace()
+//                            downloadPath.setText("下载错误")
+//                        }
+//
+//                        override fun done(file: File) {
+//                            //完成
+//                        }
+//                    })
         }
+
 
     }
 
@@ -124,7 +149,7 @@ class MainActivity : AppCompatActivity() {
 
 //            val requestBody = createFileRequestBody(file)
 
-            launchAf2({
+            launchAfHttp({
                 LvHttp.createApi(Service::class.java)
                     .postFile(createPart("key", file))
             }) {

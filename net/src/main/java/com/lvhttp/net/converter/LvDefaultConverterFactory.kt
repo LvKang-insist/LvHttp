@@ -4,16 +4,25 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
+import com.google.gson.TypeAdapter
+import com.google.gson.reflect.TypeToken
 import com.lvhttp.net.LvHttp
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
+import okio.Buffer
 import okio.BufferedSink
 import okio.Okio
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.http.Body
+import java.io.IOException
+import java.io.OutputStreamWriter
+import java.io.Writer
 import java.lang.reflect.Type
+import java.nio.charset.Charset
 
 
 /**
@@ -27,66 +36,26 @@ import java.lang.reflect.Type
 class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
 
 
-//    var requestBody: RequestBody? = null
-
-    var bufferedSink: BufferedSink? = null
-
     companion object {
         fun create(gson: Gson): LvDefaultConverterFactory {
             return LvDefaultConverterFactory(gson)
         }
     }
 
+    override fun requestBodyConverter(
+        type: Type?,
+        parameterAnnotations: Array<Annotation?>?,
+        methodAnnotations: Array<Annotation?>?,
+        retrofit: Retrofit?
+    ): Converter<*, RequestBody> {
+        val adapter = gson.getAdapter(TypeToken.get(type))
+        return GsonRequestBodyConverter(gson, adapter)
+    }
+
     override fun responseBodyConverter(
         type: Type, annotations: Array<Annotation>, retrofit: Retrofit
-    ): Converter<ResponseBody, *>? {
+    ): Converter<ResponseBody, *> {
         return LvResponseBodyConverter<Any>(gson, type)
-    }
-
-
-    override fun requestBodyConverter(
-        type: Type, parameterAnnotations: Array<Annotation>, methodAnnotations: Array<Annotation>,
-        retrofit: Retrofit
-    ): Converter<*, RequestBody>? {
-        var isBody = false
-        var isChunked = false
-        for (annotation in parameterAnnotations) {
-            isBody = isBody or (annotation is Body)
-            isChunked = isChunked or (annotation is Chunked)
-        }
-
-
-        val delegate: Converter<Any, RequestBody> = retrofit.nextRequestBodyConverter(
-            this,
-            type,
-            parameterAnnotations,
-            methodAnnotations
-        )
-        return LvRequestConverter(delegate)
-
-    }
-
-    inner class LvRequestConverter(val delegate: Converter<Any, RequestBody>) :
-        Converter<Any, RequestBody> {
-
-        override fun convert(value: Any): RequestBody? {
-            return object : RequestBody() {
-
-                val requestBody = delegate.convert(value)
-
-                override fun contentType(): MediaType? {
-                    return requestBody?.contentType()
-                }
-
-                override fun contentLength(): Long {
-                    return requestBody?.contentLength() ?: 0
-                }
-
-                override fun writeTo(sink: BufferedSink) {
-                    requestBody?.writeTo(sink)
-                }
-            }
-        }
     }
 
 
@@ -107,5 +76,25 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
 
     }
 
+}
 
+internal class GsonRequestBodyConverter<T>(
+    private val gson: Gson,
+    private val adapter: TypeAdapter<T>
+) : Converter<T, RequestBody> {
+    @Throws(IOException::class)
+    override fun convert(value: T): RequestBody {
+        val buffer = Buffer()
+        val writer: Writer =
+            OutputStreamWriter(buffer.outputStream(), UTF_8)
+        val jsonWriter = gson.newJsonWriter(writer)
+        adapter.write(jsonWriter, value)
+        jsonWriter.close()
+        return buffer.readByteString().toRequestBody(MEDIA_TYPE)
+    }
+
+    companion object {
+        private val MEDIA_TYPE: MediaType = "application/json; charset=UTF-8".toMediaType()
+        private val UTF_8 = Charset.forName("UTF-8")
+    }
 }

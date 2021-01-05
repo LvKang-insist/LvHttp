@@ -1,6 +1,5 @@
 package com.lvhttp.net.launch
 
-import android.widget.Toast
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
@@ -8,13 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.lvhttp.net.LvHttp
 import com.lvhttp.net.error.CodeException
 import com.lvhttp.net.error.ErrorKey
-import com.lvhttp.net.response.BaseResponse
 import com.lvhttp.net.response.ResponseData
 import com.lvhttp.net.response.ResultState
 import kotlinx.coroutines.*
 import java.lang.Exception
-import java.lang.NullPointerException
-import kotlin.coroutines.CoroutineContext
 
 /**
  * @name Launch
@@ -26,6 +22,9 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * 适用于在 Activity/Fragment 中调用
+ * @param result :ResultState<ResponseData<T>>
+ *                ResultState 状态管理
+ *                ResponseData<T> 数据包装类
  */
 fun <T> LifecycleOwner.launchAf(
     block: suspend () -> ResponseData<T>,
@@ -41,37 +40,32 @@ fun <T> LifecycleOwner.launchAf(
 }
 
 /**
- * 适用于返回值不确定的情况
+ * 适用于在 Activity/Fragment 中调用
+ * @param result :ResultState<ResponseData<T>>
+ *                ResultState 状态管理
+ *                T 数据包装类
+ * 适用于无数据包装类，或者文件下载等
  */
-fun <T> LifecycleOwner.launchAf2(
+fun <T> LifecycleOwner.launchAfHttp(
     block: suspend () -> T,
-    result: (ResultState<T>) -> Unit
+    result: ((ResultState<T>) -> Unit)? = null
 ) {
-    result(ResultState.LoadingState(null))
+    result?.invoke(ResultState.LoadingState(null))
     lifecycleScope.launch(Dispatchers.IO) {
-        val data = tryCatch3(block)
-        launch {
-            result(data)
+        val data = tryCatch2(block)
+        result?.run {
+            launch(Dispatchers.Main) {
+                result.invoke(data)
+            }
         }
     }
 }
 
 /**
- * 适用于没有返回值的情况，例如文件下载
- */
-fun LifecycleOwner.launchAf3(
-    block: suspend () -> Unit
-) {
-    lifecycleScope.launch(Dispatchers.IO) {
-        tryCatch2(block)
-    }
-}
-
-
-
-
-/**
  * 适用于在 ViewModel 中调用
+ * @param result :ResultState<ResponseData<T>>
+ *                ResultState 状态管理
+ *                ResponseData<T> 数据包装类
  */
 fun <T> ViewModel.launchVm(
     block: suspend () -> ResponseData<T>,
@@ -88,31 +82,27 @@ fun <T> ViewModel.launchVm(
 
 
 /**
- * 适用于返回值不确定的情况
+ * 适用于在 ViewModel 中调用
+ * @param result :ResultState<ResponseData<T>>
+ *                ResultState 状态管理
+ *                T 数据包装类
+ * 适用于无数据包装类，或者文件下载等
  */
-fun <T> ViewModel.launchVm2(
+fun <T> ViewModel.launchVmHttp(
     block: suspend () -> T,
-    result: (ResultState<T>) -> Unit
+    result: ((ResultState<T>) -> Unit)? = null
 ) {
-    result(ResultState.LoadingState(null))
+    result?.invoke(ResultState.LoadingState(null))
     viewModelScope.launch(Dispatchers.IO) {
-        val data = tryCatch3(block)
-        launch {
-            result(data)
+        val data = tryCatch2(block)
+        result?.run {
+            launch(Dispatchers.Main) {
+                result.invoke(data)
+            }
         }
     }
 }
 
-/**
- * 适用于没有返回值的情况，例如文件下载
- */
-fun ViewModel.launchVm3(
-    block: suspend () -> Unit
-) {
-    viewModelScope.launch(Dispatchers.IO) {
-        tryCatch2(block)
-    }
-}
 
 /**
  *  通常情况下，不推荐使用这种方式，可能会造成内存泄漏
@@ -131,7 +121,7 @@ suspend fun <T> launchHttp(
     }
 }
 
-suspend fun <T> tryCatch(block: suspend () -> ResponseData<T>): ResultState<ResponseData<T>> {
+private suspend fun <T> tryCatch(block: suspend () -> ResponseData<T>): ResultState<ResponseData<T>> {
     var t: ResultState<ResponseData<T>>
     try {
         val result = block.invoke()
@@ -165,16 +155,7 @@ suspend fun <T> tryCatch(block: suspend () -> ResponseData<T>): ResultState<Resp
     return t
 }
 
-suspend fun <T> tryCatch2(block: suspend () -> T): T? {
-    return try {
-        block()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
-suspend fun <T> tryCatch3(block: suspend () -> T): ResultState<T> {
+private suspend fun <T> tryCatch2(block: suspend () -> T): ResultState<T> {
     var t: ResultState<T>
     try {
         val result = block.invoke()
