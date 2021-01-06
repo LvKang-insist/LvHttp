@@ -47,23 +47,7 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4"
 
 ### 关于启动方式
 
-库中提供了三种请求的方式：
-
-- launchAfHttp
-
-   适用于在 Activity/Fragment 中调用。当 actvity 销毁后，该请求会被取消
-
-- launchVmHttp
-
-   适用于在 ViewModel 中调用。当 ViewModel 被清除时，该请求会被取消
-
-- launchHttp
-
-   没有做处理的请求。通常情况下，不推荐使用这种方式，可能会造成内存泄漏*  如：UI 已经被销毁了，而耗时操作没有完成
-
-- 直接使用 LvHttp 进行请求
-
-   这种方式是非常不推荐的，因为没有对异常进行处理，任何网络异常都有可能会导致程序崩溃
+详见 [launch](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/lvhttp/net/launch/Launch.kt)
 
 ### 初始化
 
@@ -97,34 +81,38 @@ LvHttp.Builder()
 /**
  * 普通请求
  */
-@GET("https://wanandroid.com/wxarticle/chapters/json")
-suspend fun get(): ResponseData<Bean>
+@GET("wxarticle/chapters/json")
+suspend fun get(): ResponseData<ArticleBean>
 ```
 
 ```kotlin
-launchAfHttp {
-    //resultMain 将结果转到主线程
-    //resultIO 将结果转到 IO线程
-    //block 不做任何处理
-    LvHttp.createApi(Service::class.java).get().resultMain(
-        error = {
-         //异常处理
-        Toast.makeText(this@MainActivity, "网络异常", Toast.LENGTH_SHORT).show()
-    	}
-    ) {
-        //拿到数据
-        Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
+launchAf({
+	LvHttp.createApi(Service::class.java).get()
+    }) {
+	when (it) {
+	    is ResultState.SuccessState -> Toast.makeText(this, it.t.toString(), Toast.LENGTH_SHORT).show()
+	    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
+	    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
+	}
     }
-}
 ```
 
-当然，异常可以交给全局去处理，如下
+请求结果分为三个状态，成功，失败和加载中
 
 ```kotlin
-launchAfHttp {
-    LvHttp.createApi(Service::class.java).get().resultMain {
-        Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
-    }
+@GET("wxarticle/chapters/json")
+suspend fun get2(): Bean
+```
+如上，支持不添加数据包装类。
+```kotlin
+launchAfHttp({
+   	 LvHttp.createApi(Service::class.java).get2()
+}) {
+when (it) {
+   	 is ResultState.SuccessState -> Toast.makeText(this, it.t.toString(), Toast.LENGTH_SHORT).show()
+   	 is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
+   	 is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
+   }
 }
 ```
 
@@ -142,53 +130,71 @@ launchAfHttp {
 ```
 
 ```kotlin
-LvHttp.createApi(Service::class.java).login("15129379467", "123456")
-            .resultMain(error = { _, message ->
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-            }) {
-                Log.e("---------->", "post: ${it.toString()}")
-            }
-```
-
-看起来有点麻烦，是因为处理了异常，其实异常可以在初始化的时候指定需要处理的异常，或者是处理全局异常。在初始化中处理了异常之后，可以使用非常简洁的方式，如下：
-
-```kotlin
-launchAfHttp {
-    LvHttp.createApi(Service::class.java).login("15129379467", "123456789")
-                .resultMain {
-                    Log.e("---------->", "post: ${it.toString()}")
-                }
+launchAf({
+    LvHttp.createApi(Service::class.java).login("15129379467", "147258369")
+}) {
+    when(it){
+	is ResultState.SuccessState -> TODO()
+	is ResultState.ErrorState -> TODO()
+	is ResultState.LoadingState -> TODO()
+    }
 }
 ```
+
+### 全局异常处理
+在 application 中初始化的时候调用 setErrorDispose 拦截异常，可拦截的异常件 [ErrorKey](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/lvhttp/net/error/ErrorKey.kt) 这个类，
+
+拦截方式如下：
+
+```kotlin
+.......
+  .setCode(1)
+  .setErrorDispose(ErrorKey.ErrorCode, ErrorValue {
+	Log.e("345：", "Code 错误")
+	Toast.makeText(this, "Code 错误", Toast.LENGTH_SHORT).show()
+    })
+    .setErrorDispose(ErrorKey.AllEexeption, ErrorValue {
+	it.printStackTrace()
+	Log.e("345：", "网络错误")
+	Toast.makeText(this, "网络错误", Toast.LENGTH_SHORT).show()
+    })
+
+```
+setCode 是设置正确的 code，如果不等于 setCode 值，就会进行 ErrorCode 异常处理
+AllExeption 是所有异常都会调用到这里(不包括code异常)
+更多异常详见 ErrorKey
 
 ### 文件下载
 
 ```kotlin
 @Streaming
-@GET("https://www.nuli100.com/CBY_PD/Public/appapk/app_customer.apk")
+@GET("https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz")
 suspend fun download(): ResponseBody
 ```
 
 ```kotlin
-LvHttp.createApi(Service::class.java).download()
-    .start(object : DownResponse("LvHttp", "chebangyang.apk") {
-        override fun create(size: Float) {
-            Log.e("-------->", "create:总大小 ${(size)} ")
-        }
+launchAfHttp({
+	LvHttp.createApi(Service::class.java).download()
+	    .start(object : DownResponse("LvHttp", "chebangyang.apk") {
+		override fun create(size: Float) {
+		    Log.e("-------->", "create:总大小 ${(size)} ")
+		}
 
-        @SuppressLint("SetTextI18n")
-        override fun process(process: Float) {
-            downloadPath.setText("$process %")
-        }
+		@SuppressLint("SetTextI18n")
+		override fun process(process: Float) {
+		    downloadPath.setText("$process %")
+		}
 
-        override fun error(e: Exception) {
-            e.printStackTrace()
-            downloadPath.setText("下载错误")
-        }
+		override fun error(e: Exception) {
+		    e.printStackTrace()
+		    downloadPath.setText("下载错误")
+		}
 
-        override fun done(file: File) {
-            //完成
-        }
+		override fun done(file: File) {
+		    //完成
+		    Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
+		}
+	    })
     })
 ```
 
@@ -209,9 +215,15 @@ suspend fun postFile(@Part vararg file: MultipartBody.Part): UpLoadBean
 ```
 
 ```kotlin
-val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
-    val loadBean2 = LvHttp.createApi(Service::class.java)
-            .postFile(createPart("key", file2))
+  launchAfHttp({
+	LvHttp.createApi(Service::class.java).postFile(createPart("key", file))
+    }) {
+	when (it) {
+	    is ResultState.SuccessState -> Toast.makeText(this, "成功", Toast.LENGTH_SHORT).show()
+	    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
+	    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
+	}
+    }
 ```
 
 上传多个文件
@@ -220,12 +232,15 @@ val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
  val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
  val file2 = File(Environment.getExternalStorageDirectory().path, "/image2.png")
         
- val loadBean = LvHttp.createApi(Service::class.java)
-     .postFile(
-          *createParts(
-               mapOf("key1" to file1, "key2" to file2)
-           )
-      )
+  launchAfHttp({
+	LvHttp.createApi(Service::class.java).postFile(*createParts(mapOf("key" to file, "key2" to file2)))
+    }) {
+	when (it) {
+	    is ResultState.SuccessState -> Toast.makeText(this, "成功", Toast.LENGTH_SHORT).show()
+	    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
+	    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
+	}
+    }
 ```
 
 
