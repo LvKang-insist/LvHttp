@@ -35,14 +35,20 @@ dependencies {
 
 ```groovy
 //网络请求依赖
-implementation 'com.squareup.okhttp3:okhttp:4.3.0'
-implementation 'com.squareup.okhttp3:logging-interceptor:4.3.0'
-implementation 'com.squareup.retrofit2:retrofit:2.7.2'
-implementation 'com.squareup.retrofit2:converter-gson:2.7.2'
-//协程基础库
-implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5"
-//协程 Android 库，提供 UI 调度器
-implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4"
+    //网络请求依赖
+    implementation "com.squareup.okhttp3:okhttp:4.9.0"
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    //协程基础库
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9"
+    //协程 Android 库，提供 UI 调度器
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9"
+
+    // viewmodel / activity 的ktx扩展
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
 ```
 
 ### 关于启动方式
