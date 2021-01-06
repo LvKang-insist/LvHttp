@@ -25,6 +25,8 @@ import java.lang.Exception
  * @param result :ResultState<ResponseData<T>>
  *                ResultState 状态管理
  *                ResponseData<T> 数据包装类
+ * 适用于有包装类的情况，默认包装类为 ResponseData ，
+ * 可参考 ResponseData 创建自定义的包装类，参考如下写法完成 code/自定义的验证
  */
 fun <T> LifecycleOwner.launchAf(
     block: suspend () -> ResponseData<T>,
@@ -33,7 +35,7 @@ fun <T> LifecycleOwner.launchAf(
     result(ResultState.LoadingState(ResponseData(errorCode = -1, errorMsg = "")))
     lifecycleScope.launch(Dispatchers.IO) {
         val data = tryCatch(block)
-        launch(Dispatchers.Main) {
+        withMain {
             result(data)
         }
     }
@@ -41,10 +43,10 @@ fun <T> LifecycleOwner.launchAf(
 
 /**
  * 适用于在 Activity/Fragment 中调用
- * @param result :ResultState<ResponseData<T>>
- *                ResultState 状态管理
+ * @param result :ResultState<T>
  *                T 数据包装类
- * 适用于无数据包装类，或者文件下载等
+ * 适用于无数据包装类，或者文件下载等，
+ * 注意，此方式无法对 code 进行验证，code 错误时不会进行 code 异常处理
  */
 fun <T> LifecycleOwner.launchAfHttp(
     block: suspend () -> T,
@@ -54,8 +56,8 @@ fun <T> LifecycleOwner.launchAfHttp(
     lifecycleScope.launch(Dispatchers.IO) {
         val data = tryCatch2(block)
         result?.run {
-            launch(Dispatchers.Main) {
-                result.invoke(data)
+            withMain {
+                result(data)
             }
         }
     }
@@ -74,9 +76,7 @@ fun <T> ViewModel.launchVm(
     viewModelScope.launch {
         result(ResultState.LoadingState(ResponseData(errorCode = -1, errorMsg = "")))
         val data = tryCatch(block)
-        launch(Dispatchers.Main) {
-            result(data)
-        }
+        withMain { result(data) }
     }
 }
 
@@ -96,8 +96,8 @@ fun <T> ViewModel.launchVmHttp(
     viewModelScope.launch(Dispatchers.IO) {
         val data = tryCatch2(block)
         result?.run {
-            launch(Dispatchers.Main) {
-                result.invoke(data)
+            withMain {
+                result(data)
             }
         }
     }
@@ -115,7 +115,7 @@ suspend fun <T> launchHttp(
     CoroutineScope(Dispatchers.IO).launch {
         result(ResultState.LoadingState(ResponseData(errorCode = -1, errorMsg = "")))
         val data = tryCatch(block)
-        launch(Dispatchers.Main) {
+        withMain {
             result(data)
         }
     }
@@ -129,28 +129,27 @@ private suspend fun <T> tryCatch(block: suspend () -> ResponseData<T>): ResultSt
             t = ResultState.ErrorState(result)
             //Code 异常处理
             LvHttp.getErrorDispose(ErrorKey.ErrorCode)?.error?.let {
-                it(CodeException(result.errorCode, result.errorMsg))
+                withMain { it(CodeException(result.errorCode, result.errorMsg)) }
             }
         } else {
             t = ResultState.SuccessState(result)
         }
     } catch (e: Exception) {
-        withContext(Dispatchers.Main) {
-            t = ResultState.ErrorState(ResponseData(errorCode = -1, errorMsg = e.message ?: "网络错误"))
-            //如果全局异常启用
-            LvHttp.getErrorDispose(ErrorKey.AllEexeption)?.error?.let {
-                it(e)
-                return@withContext
-            }
-            //自动匹配异常
-            ErrorKey.values().forEach {
-                if (it.name == e::class.java.simpleName) {
-                    LvHttp.getErrorDispose(it)?.error?.let { it(e) }
-                    return@withContext
-                }
-            }
-            e.printStackTrace()
+        t = ResultState.ErrorState(ResponseData(errorCode = -1, errorMsg = e.message ?: "网络错误"))
+        //如果全局异常启用
+        LvHttp.getErrorDispose(ErrorKey.AllEexeption)?.error?.let {
+            withMain { it(e) }
+            return t
         }
+        //自动匹配异常
+        ErrorKey.values().forEach {
+            if (it.name == e::class.java.simpleName) {
+                withMain { LvHttp.getErrorDispose(it)?.error?.let { it(e) } }
+                return t
+            }
+        }
+        e.printStackTrace()
+
     }
     return t
 }
@@ -165,13 +164,13 @@ private suspend fun <T> tryCatch2(block: suspend () -> T): ResultState<T> {
             t = ResultState.ErrorState(null)
             //如果全局异常启用
             LvHttp.getErrorDispose(ErrorKey.AllEexeption)?.error?.let {
-                it(e)
+                withMain { it(e) }
                 return@withContext
             }
             //自动匹配异常
             ErrorKey.values().forEach {
                 if (it.name == e::class.java.simpleName) {
-                    LvHttp.getErrorDispose(it)?.error?.let { it(e) }
+                    withMain { LvHttp.getErrorDispose(it)?.error?.let { it(e) } }
                     return@withContext
                 }
             }
@@ -179,4 +178,8 @@ private suspend fun <T> tryCatch2(block: suspend () -> T): ResultState<T> {
         }
     }
     return t
+}
+
+private suspend fun withMain(block: () -> Unit) = withContext(Dispatchers.Main) {
+    block.invoke()
 }

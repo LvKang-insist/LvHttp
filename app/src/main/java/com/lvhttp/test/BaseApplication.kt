@@ -14,8 +14,8 @@ class BaseApplication : Application() {
             .setApplication(this)
             .setBaseUrl("https://www.wanandroid.com/")
             .isCache(false)
-            .isLoging(true)
-            .setCode(0)
+            .isLog(true)
+            .setCode(1)
             .setErrorDispose(ErrorKey.ErrorCode, ErrorValue {
                 Log.e("345：", "Code 错误")
                 Toast.makeText(this, "Code 错误", Toast.LENGTH_SHORT).show()

@@ -27,6 +27,7 @@ import com.lvhttp.net.download.start
 import com.lvhttp.net.launch.*
 import com.lvhttp.net.param.createFileRequestBody
 import com.lvhttp.net.param.createPart
+import com.lvhttp.net.param.createParts
 import com.lvhttp.net.response.ResultState
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -45,14 +46,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         test.setOnClickListener {
-            launchAfHttp({
-                LvHttp.createApi(Service::class.java).get2()
+            launchAf({
+                LvHttp.createApi(Service::class.java).get()
             }) {
                 when (it) {
-                    is ResultState.SuccessState -> {
-                        Toast.makeText(this@MainActivity, it.t.toString(), Toast.LENGTH_SHORT)
-                            .show()
-                    }
+                    is ResultState.SuccessState ->
+                        Toast.makeText(this, it.t.toString(), Toast.LENGTH_SHORT).show()
                     is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT)
                         .show()
                     is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT)
@@ -86,28 +85,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     })
             })
-
-//            launchAf3 {
-//                LvHttp.createApi(Service::class.java).download()
-//                    .start(object : DownResponse("LvHttp", "chebangyang.apk") {
-//                        override fun create(size: Float) {
-//                            Log.e("-------->", "create:总大小 ${(size)} ")
-//                        }
-//
-//                        @SuppressLint("SetTextI18n")
-//                        override fun process(process: Float) {
-//                            downloadPath.setText("$process %")
-//                        }
-//
-//                        override fun error(e: Exception) {
-//                            e.printStackTrace()
-//                            downloadPath.setText("下载错误")
-//                        }
-//
-//                        override fun done(file: File) {
-//                            //完成
-//                        }
-//                    })
         }
 
 
@@ -115,10 +92,13 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun post() {
         launchAf({
-            LvHttp.createApi(Service::class.java)
-                .login("15129379467", "147258369")
+            LvHttp.createApi(Service::class.java).login("15129379467", "147258369")
         }) {
-            Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
+            when (it) {
+                is ResultState.SuccessState -> TODO()
+                is ResultState.ErrorState -> TODO()
+                is ResultState.LoadingState -> TODO()
+            }
         }
 
     }
@@ -151,7 +131,7 @@ class MainActivity : AppCompatActivity() {
 
             launchAfHttp({
                 LvHttp.createApi(Service::class.java)
-                    .postFile(createPart("key", file))
+                    .postFile(*createParts(mapOf("key" to file, "key2" to file)))
             }) {
                 when (it) {
                     is ResultState.SuccessState -> Toast.makeText(this, "成功", Toast.LENGTH_SHORT)
