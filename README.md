@@ -53,7 +53,7 @@ dependencies {
 
 ### 关于混淆
 ```
-	keep class com.lvhttp.net.response.** { *; }
+    -keep class com.lvhttp.net.response.** { *; }
 ```
 如果你自定义了 Response ，那么自定义的那个类也需要混淆，切记
 
