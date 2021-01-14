@@ -51,6 +51,12 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
 ```
 
+### 关于混淆
+```
+	keep class com.lvhttp.net.response.** { *; }
+```
+如果你自定义了 Response ，那么自定义的那个类也需要混淆，切记
+
 ### 关于启动方式
 
 详见 [launch](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/lvhttp/net/launch/Launch.kt)
