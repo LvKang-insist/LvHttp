@@ -27,7 +27,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.LvKang-insist:LvHttp:1.1.4'
+	  implementation 'com.github.LvKang-insist:LvHttp:1.1.5'
 }
 ```
 
