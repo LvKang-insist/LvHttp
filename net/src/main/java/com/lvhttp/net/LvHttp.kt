@@ -28,16 +28,6 @@ object LvHttp {
     }
 
     /**
-     * 设置异常处理
-     * @param errorKey key
-     * @param errorValue value
-     */
-    @JvmStatic
-    fun setErrorDispose(errorKey: ErrorKey, errorValue: ErrorValue) {
-        mController.errorDisposes[errorKey] = errorValue
-    }
-
-    /**
      * @return 获取异常处理
      */
     @JvmStatic
@@ -49,7 +39,7 @@ object LvHttp {
      * @return 是否打印日志
      */
     fun getIsLogging(): Boolean {
-        return mController.isLogging
+        return mController.isLog
     }
 
     /**
@@ -57,6 +47,23 @@ object LvHttp {
      */
     fun getAppContext(): Application {
         return mController.appContext
+    }
+
+    /**
+     * 获取 code
+     */
+    fun getCode(): Int {
+        return mController.code
+    }
+
+    /**
+     * 设置异常处理
+     * @param errorKey key
+     * @param errorValue value
+     */
+    @JvmStatic
+    fun setErrorDispose(errorKey: ErrorKey, errorValue: ErrorValue) {
+        mController.errorDisposes[errorKey] = errorValue
     }
 
     class Builder {
@@ -103,8 +110,8 @@ object LvHttp {
          * 是否打印 log
          * @param logging true 表示打印
          */
-        fun isLoging(logging: Boolean): Builder {
-            p.isLogging = logging
+        fun isLog(logging: Boolean): Builder {
+            p.isLog = logging
             return this
         }
 
@@ -114,6 +121,14 @@ object LvHttp {
          */
         fun isCache(iscache: Boolean): Builder {
             p.isCache = iscache
+            return this
+        }
+
+        /**
+         * 设置 code 值，如果 == code，则说明请求成功，否则进行异常处理
+         */
+        fun setCode(code: Int): Builder {
+            p.code = code
             return this
         }
 

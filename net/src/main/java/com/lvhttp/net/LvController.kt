@@ -22,7 +22,8 @@ class LvController {
     lateinit var retrofit: Retrofit
     private val mCache = mutableMapOf<String, Any>()
     val errorDisposes: MutableMap<ErrorKey, ErrorValue> = mutableMapOf()
-    var isLogging = false
+    var isLog = false
+    var code: Int = -1
 
     fun <T> newInstance(clazz: Class<T>): T {
         if (mCache[clazz.name] == null) {
@@ -40,8 +41,9 @@ class LvController {
         var connectTimeOut: Long = 10
         var readTimeOut: Long = 10
         var writeTimeOut: Long = 30
-        var isLogging = false
+        var isLog = false
         var isCache = false
+        var code = -1
         var cacheSize: Long = 1024 * 1024 * 20
         var interceptors = arrayListOf<Interceptor>()
         val errorDisposes: MutableMap<ErrorKey, ErrorValue> = mutableMapOf()
@@ -60,7 +62,7 @@ class LvController {
                 builder.addNetworkInterceptor(CacheInterceptor())
             }
             //设置 Logging
-            if (isLogging) {
+            if (isLog) {
                 builder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
             }
 
@@ -80,7 +82,8 @@ class LvController {
             controller.appContext = appContext
             controller.errorDisposes.clear()
             controller.errorDisposes.putAll(errorDisposes)
-            controller.isLogging = isLogging
+            controller.isLog = isLog
+            controller.code = code
             return retrofit
         }
     }

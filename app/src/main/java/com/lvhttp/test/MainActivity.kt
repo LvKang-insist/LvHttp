@@ -10,20 +10,33 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.cloudx.core.LiveConfig
+import com.cloudx.core.LiveHttp
+import com.cloudx.core.error.CodeBean
+import com.cloudx.core.error.EnumException
+import com.cloudx.core.error.launchLfHttp
+import com.cloudx.core.net.INetEnable
 import com.donkingliang.imageselector.utils.ImageSelector
 import com.donkingliang.imageselector.utils.UriUtils
 import com.donkingliang.imageselector.utils.VersionUtils
 import com.lvhttp.net.LvHttp
 import com.lvhttp.net.download.DownResponse
 import com.lvhttp.net.download.start
-import com.lvhttp.net.launch.launchAfHttp
+import com.lvhttp.net.launch.*
+import com.lvhttp.net.param.createFileRequestBody
 import com.lvhttp.net.param.createPart
-import com.lvhttp.net.response.resultMain
+import com.lvhttp.net.param.createParts
+import com.lvhttp.net.response.ResultState
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.RequestBody
 import java.io.*
+import java.lang.NullPointerException
 
 
 class MainActivity : AppCompatActivity() {
@@ -32,68 +45,69 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
         test.setOnClickListener {
-            launchAfHttp {
-                get()
-//                post()
-//            upload()
+            launchAf({
+                LvHttp.createApi(Service::class.java).get()
+            }) {
+                when (it) {
+                    is ResultState.SuccessState ->
+                        Toast.makeText(this, it.t.toString(), Toast.LENGTH_SHORT).show()
+                    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT)
+                        .show()
+                    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
 
         downloadButton.setOnClickListener {
-            launchAfHttp {
-                dowload()
-            }
+
+            launchAfHttp({
+                LvHttp.createApi(Service::class.java).download()
+                    .start(object : DownResponse("LvHttp", "chebangyang.apk") {
+                        override fun create(size: Float) {
+                            Log.e("-------->", "create:总大小 ${(size)} ")
+                        }
+
+                        @SuppressLint("SetTextI18n")
+                        override fun process(process: Float) {
+                            downloadPath.setText("$process %")
+                        }
+
+                        override fun error(e: Exception) {
+                            e.printStackTrace()
+                            downloadPath.setText("下载错误")
+                        }
+
+                        override fun done(file: File) {
+                            //完成
+                            Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+            })
         }
 
-    }
 
-    private suspend fun get() {
-        LvHttp.createApi(Service::class.java).get().resultMain {
-            Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
-        }
     }
 
     private suspend fun post() {
-        launchAfHttp {
-            LvHttp.createApi(Service::class.java)
-                .login("15129379467", "147258369")
-                .resultMain {
-                    Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_SHORT).show()
-                }
+        launchAf({
+            LvHttp.createApi(Service::class.java).login("15129379467", "147258369")
+        }) {
+            when (it) {
+                is ResultState.SuccessState -> TODO()
+                is ResultState.ErrorState -> TODO()
+                is ResultState.LoadingState -> TODO()
+            }
         }
 
-    }
-
-    private suspend fun dowload() {
-        LvHttp.createApi(Service::class.java).download()
-            .start(object : DownResponse("LvHttp", "chebangyang.apk") {
-                override fun create(size: Float) {
-                    Log.e("-------->", "create:总大小 ${(size)} ")
-                }
-
-                @SuppressLint("SetTextI18n")
-                override fun process(process: Float) {
-                    downloadPath.setText("$process %")
-                }
-
-                override fun error(e: Exception) {
-                    e.printStackTrace()
-                    downloadPath.setText("下载错误")
-                }
-
-                override fun done(file: File) {
-                    //完成
-                }
-            })
     }
 
     private fun upload() {
         ImageSelector.builder()
 //            .useCamera(true) // 设置是否使用拍照
 //            .setSingle(true)  //设置是否单选
-//            .setCrop(true)
+            .setCrop(true)
             .onlyTakePhoto(true)
             .start(this, 0x0001)
 
@@ -107,15 +121,26 @@ class MainActivity : AppCompatActivity() {
             val file = File(array[0])
             Log.e("-------", array[0])
 
+
             Glide.with(this)
                 .load(file)
                 .into(image)
 
 
-            launchAfHttp {
-                val loadBean2 = LvHttp.createApi(Service::class.java)
-                    .postFile(createPart("key", file!!))
-                Log.e("------------->", "upload: $loadBean2")
+//            val requestBody = createFileRequestBody(file)
+
+            launchAfHttp({
+                LvHttp.createApi(Service::class.java)
+                    .postFile(*createParts(mapOf("key" to file, "key2" to file)))
+            }) {
+                when (it) {
+                    is ResultState.SuccessState -> Toast.makeText(this, "成功", Toast.LENGTH_SHORT)
+                        .show()
+                    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT)
+                        .show()
+                    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
     }
