@@ -48,14 +48,13 @@ class MainActivity : AppCompatActivity() {
         test.setOnClickListener {
             launchAf({
                 LvHttp.createApi(Service::class.java).get()
-            }) {
-                when (it) {
-                    is ResultState.SuccessState ->
-                        Toast.makeText(this, it.t.toString(), Toast.LENGTH_SHORT).show()
-                    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT)
-                        .show()
-                    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT)
-                        .show()
+            }) { state ->
+                state.toData({
+                    Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
+                }) {
+                    it?.data?.run {
+                        Toast.makeText(this@MainActivity, this.toString(), Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -103,6 +102,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * 文件上传
+     */
     private fun upload() {
         ImageSelector.builder()
 //            .useCamera(true) // 设置是否使用拍照

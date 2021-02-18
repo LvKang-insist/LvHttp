@@ -65,9 +65,6 @@ class LvDefaultConverterFactory(private val gson: Gson) : Converter.Factory() {
 
         override fun convert(value: ResponseBody): T? {
             val string = value.string()
-            if (LvHttp.getIsLogging()) {
-                Log.e("LvHttp：type = $type", "\n  result = $string ")
-            }
             if (type == String::class.java || type::class.java.isPrimitive) {
                 return string as T
             }

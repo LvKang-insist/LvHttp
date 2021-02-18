@@ -131,6 +131,20 @@ when (it) {
 
 如上，即可完成 Get 请求
 
+如果判断太麻烦，可以使用另一种方式来拿到请求结果，如下:
+
+```
+launchAf({ LvHttp.createApi(Service::class.java).get() }) { state ->
+    state.toData({ showLoading() }) {
+        it?.data?.run {
+            Toast.makeText(this@MainActivity, this.toString(), Toast.LENGTH_SHORT).show()
+        }
+    }
+}
+```
+使用上面这种方式需要手动的判断请求结果是否成功
+
+
 ### POST
 
 ```kotlin
@@ -244,16 +258,16 @@ suspend fun postFile(@Part vararg file: MultipartBody.Part): UpLoadBean
 ```kotlin
  val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
  val file2 = File(Environment.getExternalStorageDirectory().path, "/image2.png")
-        
+
   launchAfHttp({
-	LvHttp.createApi(Service::class.java).postFile(*createParts(mapOf("key" to file, "key2" to file2)))
+	    LvHttp.createApi(Service::class.java).postFile(*createParts(mapOf("key" to file, "key2" to file2)))
     }) {
-	when (it) {
+	  when (it) {
 	    is ResultState.SuccessState -> Toast.makeText(this, "成功", Toast.LENGTH_SHORT).show()
 	    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
 	    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
-	}
-    }
+	  }
+  }
 ```
 
 

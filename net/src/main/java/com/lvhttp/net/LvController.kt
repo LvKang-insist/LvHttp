@@ -6,6 +6,7 @@ import com.lvhttp.net.converter.LvDefaultConverterFactory
 import com.lvhttp.net.error.ErrorKey
 import com.lvhttp.net.error.ErrorValue
 import com.lvhttp.net.interceptor.CacheInterceptor
+import com.lvhttp.net.interceptor.LogInterceptor
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -63,7 +64,8 @@ class LvController {
             }
             //设置 Logging
             if (isLog) {
-                builder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                builder.addInterceptor(LogInterceptor())
+//                builder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
             }
 
             //设置拦截器
