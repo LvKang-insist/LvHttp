@@ -108,10 +108,10 @@ object LvHttp {
 
         /**
          * 是否打印 log
-         * @param logging true 表示打印
+         * @param islog true 表示打印
          */
-        fun isLog(logging: Boolean): Builder {
-            p.isLog = logging
+        fun isLog(islog: Boolean): Builder {
+            p.isLog = islog
             return this
         }
 
