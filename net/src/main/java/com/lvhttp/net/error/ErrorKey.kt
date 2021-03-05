@@ -1,7 +1,5 @@
 package com.lvhttp.net.error
 
-import androidx.lifecycle.MutableLiveData
-
 /**
  * @name ErrorKey
  * @package com.www.net.error
@@ -33,7 +31,7 @@ enum class ErrorKey {
     /**
      * 数据解析错误
      */
-    JSON_EXCEPTION,
+    JsonSyntaxException,
 
     /**
      * 连接超时

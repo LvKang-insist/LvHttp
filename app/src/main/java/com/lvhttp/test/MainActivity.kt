@@ -28,6 +28,7 @@ import com.lvhttp.net.launch.*
 import com.lvhttp.net.param.createFileRequestBody
 import com.lvhttp.net.param.createPart
 import com.lvhttp.net.param.createParts
+import com.lvhttp.net.param.createRequestBody
 import com.lvhttp.net.response.ResultState
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -41,7 +42,7 @@ import java.lang.NullPointerException
 
 class MainActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) { 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
