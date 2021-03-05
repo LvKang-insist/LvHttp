@@ -260,14 +260,14 @@ suspend fun postFile(@Part vararg file: MultipartBody.Part): UpLoadBean
  val file2 = File(Environment.getExternalStorageDirectory().path, "/image2.png")
 
   launchAfHttp({
-	LvHttp.createApi(Service::class.java).postFile(*createParts(mapOf("key" to file, "key2" to file2)))
+	    LvHttp.createApi(Service::class.java).postFile(*createParts(mapOf("key" to file, "key2" to file2)))
     }) {
-	when (it) {
+	  when (it) {
 	    is ResultState.SuccessState -> Toast.makeText(this, "成功", Toast.LENGTH_SHORT).show()
 	    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
 	    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
-	}
-    }
+	  }
+  }
 ```
 
 
