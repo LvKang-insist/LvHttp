@@ -136,17 +136,23 @@ private suspend fun <T> tryCatch(block: suspend () -> ResponseData<T>): ResultSt
         }
     } catch (e: Exception) {
         t = ResultState.ErrorState(ResponseData(errorCode = -1, errorMsg = e.message ?: "网络错误"))
-        //如果全局异常启用
-        LvHttp.getErrorDispose(ErrorKey.AllEexeption)?.error?.let {
-            withMain { it(e) }
-            return t
-        }
         //自动匹配异常
         ErrorKey.values().forEach {
             if (it.name == e::class.java.simpleName) {
-                withMain { LvHttp.getErrorDispose(it)?.error?.let { it(e) } }
-                return t
+                if (LvHttp.getErrorDispose(it)?.error != null) {
+                    withMain {
+                        e.printStackTrace()
+                        LvHttp.getErrorDispose(it)?.error?.invoke(e)
+                    }
+                    return t
+                }
             }
+        }
+        //如果全局异常启用
+        LvHttp.getErrorDispose(ErrorKey.AllEexeption)?.error?.let {
+            withMain { it(e) }
+            e.printStackTrace()
+            return t
         }
         e.printStackTrace()
 
