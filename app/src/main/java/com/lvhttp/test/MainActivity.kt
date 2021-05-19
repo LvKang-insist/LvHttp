@@ -12,12 +12,6 @@ import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.cloudx.core.LiveConfig
-import com.cloudx.core.LiveHttp
-import com.cloudx.core.error.CodeBean
-import com.cloudx.core.error.EnumException
-import com.cloudx.core.error.launchLfHttp
-import com.cloudx.core.net.INetEnable
 import com.donkingliang.imageselector.utils.ImageSelector
 import com.donkingliang.imageselector.utils.UriUtils
 import com.donkingliang.imageselector.utils.VersionUtils
@@ -31,13 +25,7 @@ import com.lvhttp.net.param.createParts
 import com.lvhttp.net.param.createRequestBody
 import com.lvhttp.net.response.ResultState
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.RequestBody
 import java.io.*
-import java.lang.NullPointerException
 
 
 class MainActivity : AppCompatActivity() {
