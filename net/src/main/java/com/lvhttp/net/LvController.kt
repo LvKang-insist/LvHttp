@@ -7,6 +7,7 @@ import com.lvhttp.net.error.ErrorKey
 import com.lvhttp.net.error.ErrorValue
 import com.lvhttp.net.interceptor.CacheInterceptor
 import com.lvhttp.net.interceptor.LogInterceptor
+import com.lvhttp.net.utils.HTTPSCerUtils
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -48,6 +49,7 @@ class LvController {
         var cacheSize: Long = 1024 * 1024 * 20
         var interceptors = arrayListOf<Interceptor>()
         val errorDisposes: MutableMap<ErrorKey, ErrorValue> = mutableMapOf()
+        var cerResId: Int = -1;
 
         fun apply(controller: LvController): Retrofit {
             val builder = OkHttpClient.Builder()
@@ -57,6 +59,10 @@ class LvController {
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .retryOnConnectionFailure(true)
 
+            //验证证书
+            if (cerResId != -1) {
+                HTTPSCerUtils.setCertificate(appContext, builder, cerResId)
+            }
             //设置缓存
             if (isCache) {
                 builder.cache(Cache(appContext.cacheDir, cacheSize))
