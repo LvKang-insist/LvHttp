@@ -270,6 +270,9 @@ suspend fun postFile(@Part vararg file: MultipartBody.Part): UpLoadBean
   }
 ```
 
+### 证书验证
+
+将证文件放入 raw 目录中，然后在初始化的代码中调用 setCerResId()，传入 raw 中的 id 即可
 
 
 ### 自定义 Response
