@@ -1,6 +1,8 @@
 package com.lvhttp.net
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RawRes
 import com.lvhttp.net.error.ErrorKey
 import com.lvhttp.net.error.ErrorValue
 import okhttp3.Interceptor
@@ -144,8 +146,13 @@ object LvHttp {
         /**
          * 添加拦截器
          */
-        fun addInterceptor(interceptor: Interceptor): Builder {
-            p.interceptors.add(interceptor)
+        fun addInterceptor(vararg interceptor: Interceptor): Builder {
+            p.interceptors.addAll(interceptor)
+            return this
+        }
+
+        fun setCerResId(@RawRes cerRes: Int): Builder {
+            p.cerResId = cerRes
             return this
         }
 
