@@ -30,7 +30,7 @@ import java.io.*
 
 class MainActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) { 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -41,8 +41,9 @@ class MainActivity : AppCompatActivity() {
                 state.toData({
                     Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
                 }) {
-                    it?.data?.run {
-                        Toast.makeText(this@MainActivity, this.toString(), Toast.LENGTH_SHORT).show()
+                    it?._data?.run {
+                        Log.e("---345--->", toString())
+                        Toast.makeText(this@MainActivity, this.toString(), Toast.LENGTH_LONG).show()
                     }
                 }
             }

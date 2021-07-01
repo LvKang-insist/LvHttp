@@ -1,5 +1,6 @@
 package com.lvhttp.net.launch
 
+import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
@@ -7,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.lvhttp.net.LvHttp
 import com.lvhttp.net.error.CodeException
 import com.lvhttp.net.error.ErrorKey
-import com.lvhttp.net.response.ResponseData
+import com.lvhttp.net.response.BaseResponse
 import com.lvhttp.net.response.ResultState
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -22,17 +23,17 @@ import java.lang.Exception
 
 /**
  * 适用于在 Activity/Fragment 中调用
- * @param result :ResultState<ResponseData<T>>
+ * @param result :ResultState<BaseResponse<T>>
  *                ResultState 状态管理
- *                ResponseData<T> 数据包装类
- * 适用于有包装类的情况，默认包装类为 ResponseData ，
- * 可参考 ResponseData 创建自定义的包装类，参考如下写法完成 code/自定义的验证
+ *                BaseResponse<T> 数据包装类
+ * 适用于有包装类的情况，默认包装类为 BaseResponse ，
+ * 可参考 BaseResponse 创建自定义的包装类，参考如下写法完成 code/自定义的验证
  */
 fun <T> LifecycleOwner.launchAf(
-    block: suspend () -> ResponseData<T>,
-    result: (ResultState<ResponseData<T>>) -> Unit
+    block: suspend () -> BaseResponse<T>,
+    result: (ResultState<BaseResponse<T>>) -> Unit
 ) {
-    result(ResultState.LoadingState(ResponseData(errorCode = -1, errorMsg = "")))
+    result(ResultState.LoadingState(BaseResponse(_code = -1, _message = "", _data = null)))
     lifecycleScope.launch(Dispatchers.IO) {
         val data = tryCatch(block)
         withMain {
@@ -65,16 +66,16 @@ fun <T> LifecycleOwner.launchAfHttp(
 
 /**
  * 适用于在 ViewModel 中调用
- * @param result :ResultState<ResponseData<T>>
+ * @param result :ResultState<BaseResponse<T>>
  *                ResultState 状态管理
- *                ResponseData<T> 数据包装类
+ *                BaseResponse<T> 数据包装类
  */
 fun <T> ViewModel.launchVm(
-    block: suspend () -> ResponseData<T>,
-    result: (ResultState<ResponseData<T>>) -> Unit
+    block: suspend () -> BaseResponse<T>,
+    result: (ResultState<BaseResponse<T>>) -> Unit
 ) {
     viewModelScope.launch {
-        result(ResultState.LoadingState(ResponseData(errorCode = -1, errorMsg = "")))
+        result(ResultState.LoadingState(BaseResponse(_code = -1, _message = "", _data = null)))
         val data = tryCatch(block)
         withMain { result(data) }
     }
@@ -83,7 +84,7 @@ fun <T> ViewModel.launchVm(
 
 /**
  * 适用于在 ViewModel 中调用
- * @param result :ResultState<ResponseData<T>>
+ * @param result :ResultState<BaseResponse<T>>
  *                ResultState 状态管理
  *                T 数据包装类
  * 适用于无数据包装类，或者文件下载等
@@ -109,11 +110,11 @@ fun <T> ViewModel.launchVmHttp(
  *  如：UI 已经被销毁了，而耗时操作没有完成。
  */
 suspend fun <T> launchHttp(
-    block: suspend () -> ResponseData<T>,
-    result: (ResultState<ResponseData<T>>) -> Unit
+    block: suspend () -> BaseResponse<T>,
+    result: (ResultState<BaseResponse<T>>) -> Unit
 ) {
     CoroutineScope(Dispatchers.IO).launch {
-        result(ResultState.LoadingState(ResponseData(errorCode = -1, errorMsg = "")))
+        result(ResultState.LoadingState(BaseResponse(_code = -1, _message = "", _data = null)))
         val data = tryCatch(block)
         withMain {
             result(data)
@@ -121,21 +122,27 @@ suspend fun <T> launchHttp(
     }
 }
 
-private suspend fun <T> tryCatch(block: suspend () -> ResponseData<T>): ResultState<ResponseData<T>> {
-    var t: ResultState<ResponseData<T>>
+private suspend fun <T> tryCatch(block: suspend () -> BaseResponse<T>): ResultState<BaseResponse<T>> {
+    var t: ResultState<BaseResponse<T>>
     try {
-        val result = block.invoke()
-        if (result.errorCode != LvHttp.getCode()) {
+        val result = block.invoke().notifyData()
+        if (result._code != LvHttp.getCode()) {
             t = ResultState.ErrorState(result)
             //Code 异常处理
             LvHttp.getErrorDispose(ErrorKey.ErrorCode)?.error?.let {
-                withMain { it(CodeException(result.errorCode, result.errorMsg)) }
+                withMain { it(CodeException(result._code, result._message ?: "Code 异常")) }
             }
         } else {
             t = ResultState.SuccessState(result)
         }
     } catch (e: Exception) {
-        t = ResultState.ErrorState(ResponseData(errorCode = -1, errorMsg = e.message ?: "网络错误"))
+        t = ResultState.ErrorState(
+            BaseResponse(
+                _code = -1,
+                _message = e.message ?: "网络错误",
+                _data = null
+            )
+        )
         //自动匹配异常
         ErrorKey.values().forEach {
             if (it.name == e::class.java.simpleName) {

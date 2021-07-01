@@ -33,35 +33,34 @@ class LogInterceptor : Interceptor {
         requestBuffer.apply {
             append("{url:${request.url}} \n")
             append("{method:${request.method}} \n")
+            append("{token:${request.headers["ACCESS-TOKEN"]}} \n")
             if (requestBody != null && !bodyHasUnknownEncoding(request.headers) && !requestBody.isDuplex() && !requestBody.isOneShot()) {
                 val buffer = Buffer()
                 requestBody.writeTo(buffer)
-                if (buffer.isProbablyUtf8()){
+                if (buffer.isProbablyUtf8()) {
                     append("{arguments:{${buffer.readString(charset)}}}\n")
                 }
             }
         }
-        Log.d("LvHttp ---- Start>：\n",requestBuffer.toString())
 
         val response = chain.proceed(request)
         try {
-            val responseBuffer = StringBuffer()
             val responseBody = response.body!!
 
             val source = responseBody.source()
             source.request(Long.MAX_VALUE) // Buffer the entire body.
             val bufferResponse = source.buffer
 
-            responseBuffer.apply {
-                append("{Code:${response.code}}\n")
+            requestBuffer.apply {
+                append("\n{Code:${response.code}}\n")
                 append("{URL：${response.request.url}}\n")
                 if (!bufferResponse.isProbablyUtf8()) {
-                    append("<-- END HTTP (binary ${bufferResponse.size}-byte body omitted)")
-                }else{
-                    append("body：\n${bufferResponse.clone().readString(charset)}")
+                    append("<-- END HTTP (binary - byte body omitted)")
+                } else {
+                    append("body：${bufferResponse.clone().readString(charset)}")
                 }
             }
-            Log.d("LvHttp ---- END HTTP>",responseBuffer.toString())
+            Log.d("LvHttp ---- END HTTP>", requestBuffer.toString())
         } catch (e: Exception) {
             e.printStackTrace()
         }
