@@ -12,6 +12,7 @@ import com.lvhttp.net.response.BaseResponse
 import com.lvhttp.net.response.ResultState
 import kotlinx.coroutines.*
 import java.lang.Exception
+import kotlin.system.measureTimeMillis
 
 /**
  * @name Launch
@@ -64,6 +65,26 @@ fun <T> LifecycleOwner.launchAfHttp(
     }
 }
 
+
+fun <T> LifecycleOwner.zipAfLaunch(
+    block: List<suspend () -> BaseResponse<T>>,
+    result: (List<BaseResponse<T>?>) -> Unit
+) {
+    lifecycleScope.launch {
+        val list = arrayListOf<Deferred<BaseResponse<T>?>>()
+        block.forEach {
+            list.add(async {
+                tryCatch(it).data?.notifyData()
+            })
+        }
+        val data = list.awaitAll()
+        launch(Dispatchers.Main) {
+            result.invoke(data)
+        }
+    }
+}
+
+
 /**
  * 适用于在 ViewModel 中调用
  * @param result :ResultState<BaseResponse<T>>
@@ -80,6 +101,7 @@ fun <T> ViewModel.launchVm(
         withMain { result(data) }
     }
 }
+
 
 
 /**
@@ -103,6 +125,8 @@ fun <T> ViewModel.launchVmHttp(
         }
     }
 }
+
+
 
 
 /**

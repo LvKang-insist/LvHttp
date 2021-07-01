@@ -24,6 +24,7 @@ import com.lvhttp.net.param.createPart
 import com.lvhttp.net.param.createParts
 import com.lvhttp.net.param.createRequestBody
 import com.lvhttp.net.response.ResultState
+import com.lvhttp.test.response.ResponseData
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.*
 
@@ -35,18 +36,33 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         test.setOnClickListener {
-            launchAf({
-                LvHttp.createApi(Service::class.java).get()
-            }) { state ->
-                state.toData({
-                    Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
-                }) {
-                    it?._data?.run {
-                        Log.e("---345--->", toString())
-                        Toast.makeText(this@MainActivity, this.toString(), Toast.LENGTH_LONG).show()
-                    }
+//            launchAf({
+//                LvHttp.createApi(Service::class.java).get()
+//            }) { state ->
+//                state.toData({
+//                    Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
+//                }) {
+//                    it?._data?.run {
+//                        Log.e("---345--->", toString())
+//                        Toast.makeText(this@MainActivity, this.toString(), Toast.LENGTH_LONG).show()
+//                    }
+//                }
+//            }
+            //并发
+            val list = arrayListOf<suspend () -> ResponseData<ArticleBean>>()
+            (0..10).forEach { _ ->
+                list.add {
+                    LvHttp.createApi(Service::class.java).get()
                 }
             }
+            zipAfLaunch(list) { ls ->
+                Log.e("---345--->", "${ls.size}")
+                ls.forEach {
+                    Log.e("---345--->", "${it?._data}")
+                    Log.e("---345--->", "------------------------")
+                }
+            }
+
         }
 
         downloadButton.setOnClickListener {
