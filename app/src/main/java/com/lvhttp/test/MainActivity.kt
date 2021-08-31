@@ -36,60 +36,66 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         test.setOnClickListener {
-//            launchAf({
-//                LvHttp.createApi(Service::class.java).get()
-//            }) { state ->
-//                state.toData({
-//                    Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
-//                }) {
-//                    it?._data?.run {
-//                        Log.e("---345--->", toString())
-//                        Toast.makeText(this@MainActivity, this.toString(), Toast.LENGTH_LONG).show()
+            launchAf({
+                LvHttp.createApi(Service::class.java).get()
+            }) { state ->
+                state.toData {
+                    Log.e("---345--->", it.data.toString())
+                    Toast.makeText(this, "${it.data}", Toast.LENGTH_SHORT).show()
+                }.toError {
+                    Log.e("---345  --->", "${it.message}");
+                    Log.e("---345--->", "${it.printStackTrace()}");
+                }.toLoading {
+                    Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
+                }
+            }
+//            //并发
+//            val list = arrayListOf<suspend () -> ResponseData<ArticleBean>>()
+//            (0..10).forEach { _ ->
+//                list.add {
+//                    LvHttp.createApi(Service::class.java).get()
+//                }
+//            }
+//            zipAfLaunch(list) { ls ->
+//                Log.e("---345--->", "${ls.size}")
+//                ls.forEachIndexed { index, resultState ->
+//                    resultState.toData {
+//                        Log.e("---345--->$index", "${it.data}")
+//                    }.toError {
+//
+//                    }.toLoading {
+//
 //                    }
 //                }
 //            }
-            //并发
-            val list = arrayListOf<suspend () -> ResponseData<ArticleBean>>()
-            (0..10).forEach { _ ->
-                list.add {
-                    LvHttp.createApi(Service::class.java).get()
-                }
-            }
-            zipAfLaunch(list) { ls ->
-                Log.e("---345--->", "${ls.size}")
-                ls.forEach {
-                    Log.e("---345--->", "${it?._data}")
-                    Log.e("---345--->", "------------------------")
-                }
-            }
 
         }
 
         downloadButton.setOnClickListener {
 
-            launchAfHttp({
-                LvHttp.createApi(Service::class.java).download()
-                    .start(object : DownResponse("LvHttp", "chebangyang.apk") {
-                        override fun create(size: Float) {
-                            Log.e("-------->", "create:总大小 ${(size)} ")
-                        }
-
-                        @SuppressLint("SetTextI18n")
-                        override fun process(process: Float) {
-                            downloadPath.setText("$process %")
-                        }
-
-                        override fun error(e: Exception) {
-                            e.printStackTrace()
-                            downloadPath.setText("下载错误")
-                        }
-
-                        override fun done(file: File) {
-                            //完成
-                            Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
-                        }
-                    })
-            })
+//            launchAfHttp({
+//                LvHttp.createApi(Service::class.java).download()
+//                    .start(object : DownResponse("LvHttp", "chebangyang.apk") {
+//                        override fun create(size: Float) {
+//                            Log.e("-------->", "create:总大小 ${(size)} ")
+//                        }
+//
+//                        @SuppressLint("SetTextI18n")
+//                        override fun process(process: Float) {
+//                            downloadPath.setText("$process %")
+//                        }
+//
+//                        override fun error(e: Exception) {
+//                            e.printStackTrace()
+//                            downloadPath.setText("下载错误")
+//                        }
+//
+//                        override fun done(file: File) {
+//                            //完成
+//                            Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
+//                        }
+//                    })
+//            })
         }
 
 

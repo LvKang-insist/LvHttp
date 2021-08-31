@@ -17,7 +17,7 @@ class BaseApplication : Application() {
             .isLog(true)
             .setCode(0)
             .setErrorDispose(ErrorKey.ErrorCode, ErrorValue {
-                Log.e("345：", "Code 错误")
+                Log.e("345：", "code 错误")
                 Toast.makeText(this, "Code 错误", Toast.LENGTH_SHORT).show()
             })
             .setErrorDispose(ErrorKey.AllEexeption, ErrorValue {
