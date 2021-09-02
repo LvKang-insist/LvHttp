@@ -1,7 +1,6 @@
 package com.lvhttp.test
 
 
-
 /**
  * @name Data
  * @package com.www.lvhttp
@@ -20,4 +19,8 @@ class ArticleBean : ArrayList<ArticleBean.BeanItem>() {
         val userControlSetTop: Boolean, // false
         val visible: Int // 1
     )
+
+    override fun toString(): String {
+        return joinToString()
+    }
 }

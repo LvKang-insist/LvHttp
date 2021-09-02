@@ -2,8 +2,7 @@ package com.lvhttp.test
 
 
 import com.lvhttp.net.converter.Chunked
-import com.lvhttp.net.response.BaseResponse
-import com.lvhttp.net.response.ResponseData
+import com.lvhttp.test.response.ResponseData
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody

@@ -24,71 +24,105 @@ import com.lvhttp.net.param.createPart
 import com.lvhttp.net.param.createParts
 import com.lvhttp.net.param.createRequestBody
 import com.lvhttp.net.response.ResultState
+import com.lvhttp.test.response.ResponseData
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.launch
 import java.io.*
 
 
 class MainActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) { 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         test.setOnClickListener {
-            launchAf({
-                LvHttp.createApi(Service::class.java).get()
-            }) { state ->
-                state.toData({
-                    Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
-                }) {
-                    it?.data?.run {
-                        Toast.makeText(this@MainActivity, this.toString(), Toast.LENGTH_SHORT).show()
-                    }
+
+            lifecycleScope.launch {
+                launchHttp {
+                    Toast.makeText(this@MainActivity, "加载中", Toast.LENGTH_SHORT).show()
+                    LvHttp.createApi(Service::class.java).get()
+                }.toData {
+                    Toast.makeText(this@MainActivity, "${it.data}", Toast.LENGTH_SHORT).show()
+                }.toError {
+                    //Error
                 }
+                //Stop loading
             }
+
+//                launchHttpPack {
+//                    LvHttp.createApi(Service::class.java).get2()
+//                }.toData {
+//                    Toast.makeText(this@MainActivity, "${it.data}", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//            Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
+
+//            //并发
+//            val list = arrayListOf<suspend () -> ResponseData<ArticleBean>>()
+//            (0..10).forEach { _ ->
+//                list.add {
+//                    LvHttp.createApi(Service::class.java).get()
+//                }
+//            }
+//
+//            lifecycleScope.launch {
+//                zipLaunch(list) {
+//                    it.forEachIndexed { index, resultState ->
+//                        resultState.toData {
+//                            Log.e("---345--->$index", "${it.data}")
+//                        }.toError {
+//                            Log.e("---345--->", "${it.printStackTrace()}");
+//                        }
+//                    }
+//                }
+//            }
         }
 
         downloadButton.setOnClickListener {
 
-            launchAfHttp({
-                LvHttp.createApi(Service::class.java).download()
-                    .start(object : DownResponse("LvHttp", "chebangyang.apk") {
-                        override fun create(size: Float) {
-                            Log.e("-------->", "create:总大小 ${(size)} ")
-                        }
+            lifecycleScope.launch {
+                launchHttpPack {
+                    LvHttp.createApi(Service::class.java).download()
+                        .start(object : DownResponse("LvHttp", "chebangyang.apk") {
+                            override fun create(size: Float) {
+                                Log.e("-------->", "create:总大小 ${(size)} ")
+                            }
 
-                        @SuppressLint("SetTextI18n")
-                        override fun process(process: Float) {
-                            downloadPath.setText("$process %")
-                        }
+                            @SuppressLint("SetTextI18n")
+                            override fun process(process: Float) {
+                                downloadPath.setText("$process %")
+                            }
 
-                        override fun error(e: Exception) {
-                            e.printStackTrace()
-                            downloadPath.setText("下载错误")
-                        }
+                            override fun error(e: Exception) {
+                                e.printStackTrace()
+                                downloadPath.setText("下载错误")
+                            }
 
-                        override fun done(file: File) {
-                            //完成
-                            Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
-                        }
-                    })
-            })
+                            override fun done(file: File) {
+                                //完成
+                                Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        })
+                }
+            }
         }
 
 
     }
 
-    private suspend fun post() {
-        launchAf({
-            LvHttp.createApi(Service::class.java).login("15129379467", "147258369")
-        }) {
-            when (it) {
-                is ResultState.SuccessState -> TODO()
-                is ResultState.ErrorState -> TODO()
-                is ResultState.LoadingState -> TODO()
+    private fun post() {
+
+        lifecycleScope.launch {
+            launchHttp {
+                LvHttp.createApi(Service::class.java).login("15129379467", "147258369")
+            }.toData {
+                Toast.makeText(this@MainActivity, it.data.toString(), Toast.LENGTH_SHORT).show()
+            }.toError {
+                Log.e("---345--->", "${it.printStackTrace()}");
             }
         }
-
     }
 
     /**
@@ -101,7 +135,6 @@ class MainActivity : AppCompatActivity() {
             .setCrop(true)
             .onlyTakePhoto(true)
             .start(this, 0x0001)
-
     }
 
 
@@ -120,17 +153,14 @@ class MainActivity : AppCompatActivity() {
 
 //            val requestBody = createFileRequestBody(file)
 
-            launchAfHttp({
-                LvHttp.createApi(Service::class.java)
-                    .postFile(*createParts(mapOf("key" to file, "key2" to file)))
-            }) {
-                when (it) {
-                    is ResultState.SuccessState -> Toast.makeText(this, "成功", Toast.LENGTH_SHORT)
-                        .show()
-                    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT)
-                        .show()
-                    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT)
-                        .show()
+            lifecycleScope.launch {
+                launchHttp {
+                    LvHttp.createApi(Service::class.java)
+                        .postFile(*createParts(mapOf("key" to file, "key2" to file)))
+                }.toData {
+                    Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
+                }.toError {
+                    Toast.makeText(this@MainActivity, "失败", Toast.LENGTH_SHORT).show()
                 }
             }
         }

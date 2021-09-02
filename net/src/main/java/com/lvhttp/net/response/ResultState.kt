@@ -1,5 +1,7 @@
 package com.lvhttp.net.response
 
+import java.lang.Exception
+
 /**
  * @name ResultState
  * @package com.lvhttp.net.response
@@ -7,25 +9,20 @@ package com.lvhttp.net.response
  * @time 2021/01/05 10:19
  * @description
  */
-sealed class ResultState<T>(t: T?) {
-    var data: T? = null
+sealed class ResultState<T> {
 
-    init {
-        data = t
+    class SuccessState<T>(val t: T) : ResultState<T>()
+    class ErrorState<T>(val error: Exception) : ResultState<T>()
+
+    /** 获取请求成功后的数据 */
+    fun toData(data: (T) -> Unit): ResultState<T> {
+        if (this is SuccessState) data.invoke(this.t)
+        return this
     }
 
-    class SuccessState<T>(val t: T) : ResultState<T>(t)
-    class ErrorState<T>(val t: T?) : ResultState<T>(t)
-    class LoadingState<T>(val t: T?) : ResultState<T>(t)
-
-    /**
-     * 直接转为结果,可能为 null
-     */
-    fun toData(loading: (() -> Unit)? = null, block: ((T?) -> Unit)? = null) {
-        if (this is LoadingState) {
-            loading?.invoke()
-        } else {
-            block?.invoke(data)
-        }
+    /** 获取请求失败后的错误信息 */
+    fun toError(error: (Exception) -> Unit): ResultState<T> {
+        if (this is ErrorState) error.invoke(this.error)
+        return this
     }
 }
