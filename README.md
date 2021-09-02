@@ -13,7 +13,7 @@
 - 支持自定义 Response，格式参考 ResponseData
 - 支持在请求接口中直接返回 Bean 类。
 - 支持 Ktx 扩展
-- 支持请求结果的状态管理
+- 完善的状态管理机制，使用非常简单
 
 ### 如何使用：
 
@@ -99,18 +99,23 @@ suspend fun get(): ResponseData<ArticleBean>
 ```
 
 ```kotlin
-launchAf({
-	LvHttp.createApi(Service::class.java).get()
-    }) {
-	when (it) {
-	    is ResultState.SuccessState -> Toast.makeText(this, it.t.toString(), Toast.LENGTH_SHORT).show()
-	    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
-	    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
-	}
+lifecycleScope.launch {
+    launchHttp {
+        Toast.makeText(this@MainActivity, "加载中", Toast.LENGTH_SHORT).show()
+        LvHttp.createApi(Service::class.java).get()
+    }.toData {
+        Toast.makeText(this@MainActivity, "${it.data}", Toast.LENGTH_SHORT).show()
+    }.toError {
+        Log.e("---345--->", "${it.printStackTrace()}");
     }
+    //Stop Loading
+    Toast.makeText(this@MainActivity, "完成", Toast.LENGTH_SHORT).show()
+}
 ```
 
-请求结果分为三个状态，成功，失败和加载中
+请求结果分为两个，分别是 `toData` 表示成功，`tpError`表示失败
+
+> 需要注意的是，如果请求过程中失败，如果启用了全局异常，那么全局异常和 toError 都会被调用，全局异常可用于吐司提示用户或者异常上报等，toError 可以用于修改 UI 状态等
 
 ```kotlin
 @GET("wxarticle/chapters/json")
@@ -118,31 +123,20 @@ suspend fun get2(): Bean
 ```
 如上，支持不添加数据包装类。
 ```kotlin
-launchAfHttp({
-   	 LvHttp.createApi(Service::class.java).get2()
-}) {
-when (it) {
-   	 is ResultState.SuccessState -> Toast.makeText(this, it.t.toString(), Toast.LENGTH_SHORT).show()
-   	 is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
-   	 is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
-   }
+lifecycleScope.launch {
+    launchHttpPack {
+        LvHttp.createApi(Service::class.java).get2()
+    }.toData {
+        Toast.makeText(this@MainActivity, "${it.data}", Toast.LENGTH_SHORT).show()
+    }
+    //Stop Loading
+    Toast.makeText(this@MainActivity, "完成", Toast.LENGTH_SHORT).show()
 }
 ```
 
 如上，即可完成 Get 请求
 
-如果判断太麻烦，可以使用另一种方式来拿到请求结果，如下:
-
-```
-launchAf({ LvHttp.createApi(Service::class.java).get() }) { state ->
-    state.toData({ showLoading() }) {
-        it?.data?.run {
-            Toast.makeText(this@MainActivity, this.toString(), Toast.LENGTH_SHORT).show()
-        }
-    }
-}
-```
-使用上面这种方式需要手动的判断请求结果是否成功
+> 需要注意的是上面使用的是  `launchHttpPack` ，这种方式无包装类，所以无法自动验证 code，
 
 
 ### POST
@@ -157,19 +151,21 @@ launchAf({ LvHttp.createApi(Service::class.java).get() }) { state ->
 ```
 
 ```kotlin
-launchAf({
-    LvHttp.createApi(Service::class.java).login("15129379467", "147258369")
-}) {
-    when(it){
-	is ResultState.SuccessState -> TODO()
-	is ResultState.ErrorState -> TODO()
-	is ResultState.LoadingState -> TODO()
+lifecycleScope.launch {
+    launchHttp {
+        LvHttp.createApi(Service::class.java).login("15129379467", "147258369")
+    }.toData {
+        Toast.makeText(this@MainActivity, it.data.toString(), Toast.LENGTH_SHORT).show()
+    }.toError {
+        Log.e("---345--->", "${it.printStackTrace()}");
     }
+    //Stop Loading
+    Toast.makeText(this@MainActivity, "完成", Toast.LENGTH_SHORT).show()
 }
 ```
 
 ### 全局异常处理
-在 application 中初始化的时候调用 setErrorDispose 拦截异常，可拦截的异常件 [ErrorKey](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/lvhttp/net/error/ErrorKey.kt) 这个类，
+在 application 中初始化的时候调用 setErrorDispose 拦截异常，可拦截的异常见 [ErrorKey](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/lvhttp/net/error/ErrorKey.kt) 这个类，
 
 拦截方式如下：
 
@@ -200,29 +196,31 @@ suspend fun download(): ResponseBody
 ```
 
 ```kotlin
-launchAfHttp({
-	LvHttp.createApi(Service::class.java).download()
-	    .start(object : DownResponse("LvHttp", "chebangyang.apk") {
-		override fun create(size: Float) {
-		    Log.e("-------->", "create:总大小 ${(size)} ")
-		}
+lifecycleScope.launch {
+    launchHttpPack {
+        LvHttp.createApi(Service::class.java).download()
+        .start(object : DownResponse("LvHttp", "chebangyang.apk") {
+            override fun create(size: Float) {
+                Log.e("-------->", "create:总大小 ${(size)} ")
+            }
 
-		@SuppressLint("SetTextI18n")
-		override fun process(process: Float) {
-		    downloadPath.setText("$process %")
-		}
+            @SuppressLint("SetTextI18n")
+            override fun process(process: Float) {
+                downloadPath.setText("$process %")
+            }
 
-		override fun error(e: Exception) {
-		    e.printStackTrace()
-		    downloadPath.setText("下载错误")
-		}
+            override fun error(e: Exception) {
+                e.printStackTrace()
+                downloadPath.setText("下载错误")
+            }
 
-		override fun done(file: File) {
-		    //完成
-		    Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
-		}
-	    })
-    })
+            override fun done(file: File) {
+                //完成
+                Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+}
 ```
 
 其中四个方法可根据需要进行重写
@@ -242,15 +240,15 @@ suspend fun postFile(@Part vararg file: MultipartBody.Part): UpLoadBean
 ```
 
 ```kotlin
-  launchAfHttp({
-	LvHttp.createApi(Service::class.java).postFile(createPart("key", file))
-    }) {
-	when (it) {
-	    is ResultState.SuccessState -> Toast.makeText(this, "成功", Toast.LENGTH_SHORT).show()
-	    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
-	    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
-	}
+lifecycleScope.launch {
+    launchHttp {
+        LvHttp.createApi(Service::class.java).postFile(createPart("key", file))
+    }.toData {
+        Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
+    }.toError {
+        Toast.makeText(this@MainActivity, "失败", Toast.LENGTH_SHORT).show()
     }
+}
 ```
 
 上传多个文件
@@ -259,23 +257,33 @@ suspend fun postFile(@Part vararg file: MultipartBody.Part): UpLoadBean
  val file1 = File(Environment.getExternalStorageDirectory().path, "/image1.png")
  val file2 = File(Environment.getExternalStorageDirectory().path, "/image2.png")
 
-  launchAfHttp({
-	    LvHttp.createApi(Service::class.java).postFile(*createParts(mapOf("key" to file, "key2" to file2)))
-    }) {
-	  when (it) {
-	    is ResultState.SuccessState -> Toast.makeText(this, "成功", Toast.LENGTH_SHORT).show()
-	    is ResultState.ErrorState -> Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show()
-	    is ResultState.LoadingState -> Toast.makeText(this, "加载中", Toast.LENGTH_SHORT).show()
-	  }
-  }
+lifecycleScope.launch {
+    launchHttp {
+        LvHttp.createApi(Service::class.java)
+        .postFile(*createParts(mapOf("key" to file, "key2" to file)))
+    }.toData {
+        Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
+    }.toError {
+        Toast.makeText(this@MainActivity, "失败", Toast.LENGTH_SHORT).show()
+    }
+}
 ```
 
 
 
 ### 自定义 Response
 
-​	参考 [ResponseData](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/www/net/response/ResponseData.kt) 更改即可
+自定义 Response 需要继承 `BaseResponse`，并且实现 notifyData 方法，如下所示：
 
-​	其中 [ResponseData](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/www/net/response/ResponseData.kt) 对应的数据类型为 [Data](https://wanandroid.com/wxarticle/chapters/json)
+```kotlin
+data class ResponseData<T>(val data: T, val code: Int, val errorMsg: String) :
+    BaseResponse<T>() {
+    override fun notifyData(): BaseResponse<T> {
+        _data = data
+        _code = code
+        _message = errorMsg
+        return super.notifyData()
+    }
+}
+```
 
-​	ResponseData 中的 T 可参考 [Bean](https://github.com/LvKang-insist/LvHttp/blob/master/app/src/main/java/com/www/lvhttp/Data.kt)

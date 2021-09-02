@@ -9,31 +9,18 @@ import java.lang.Exception
  * @time 2021/01/05 10:19
  * @description
  */
-sealed class ResultState<T>(t: T?) {
-    var data: T? = null
+sealed class ResultState<T> {
 
-    init {
-        data = t
-    }
+    class SuccessState<T>(val t: T) : ResultState<T>()
+    class ErrorState<T>(val error: Exception) : ResultState<T>()
 
-    class SuccessState<T>(val t: T) : ResultState<T>(t)
-    class ErrorState<T>(val t: T? = null, val error: Exception) : ResultState<T>(t)
-    class LoadingState<T>(val t: T? = null) : ResultState<T>(t)
-
-
-    fun toLoading(loading: () -> Unit): ResultState<T> {
-        if (this is LoadingState) loading.invoke()
-        return this
-    }
-
-    /**
-     * 直接转为结果
-     */
+    /** 获取请求成功后的数据 */
     fun toData(data: (T) -> Unit): ResultState<T> {
         if (this is SuccessState) data.invoke(this.t)
         return this
     }
 
+    /** 获取请求失败后的错误信息 */
     fun toError(error: (Exception) -> Unit): ResultState<T> {
         if (this is ErrorState) error.invoke(this.error)
         return this

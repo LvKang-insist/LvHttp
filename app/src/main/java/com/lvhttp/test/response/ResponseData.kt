@@ -11,7 +11,7 @@ import com.lvhttp.net.response.BaseResponse
  * @description
  */
 
-data class ResponseData<T>(val data: T? = null, val errorCode: Int, val errorMsg: String) :
+data class ResponseData<T>(val data: T, val errorCode: Int, val errorMsg: String) :
     BaseResponse<T>() {
     override fun notifyData(): BaseResponse<T> {
         _data = data
