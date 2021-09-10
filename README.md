@@ -269,9 +269,26 @@ lifecycleScope.launch {
 }
 ```
 
-### 证书验证
+### 添加证书验证
 
 将证文件放入 raw 目录中，然后在初始化的代码中调用 setCerResId()，传入 raw 中的 id 即可
+
+![](https://gitee.com/lvknaginist/pic-go-picure-bed/raw/master/images/20210910155914.png)
+```
+ LvHttp.Builder()
+    .setApplication(getApplication())
+    .setBaseUrl(BuildConfig.HOST_URL)
+    .isCache(false)
+    .isLog(!BuildConfig.isRelease)
+    //添加证书
+    .setCerResId(if (BuildConfig.isRelease) R.raw.release_cloud else R.raw.test_cloud)
+    .setCode(NetWorkCode.NETWORK_SUCCESS)
+    .addInterceptor(HeaderInterceptor())
+    .addInterceptor(ParamInterceptor())
+    .setConnectTimeOut(20)
+    .setReadTimeOut(20)
+    .....
+```
 
 
 ### 自定义 Response
@@ -290,23 +307,4 @@ data class ResponseData<T>(val data: T, val code: Int, val errorMsg: String) :
 }
 ```
 
-### 添加证书验证
-
-在初始化的时候调用  setCerResId 即可
-![](https://gitee.com/lvknaginist/pic-go-picure-bed/raw/master/images/20210910155914.png)
-```
- LvHttp.Builder()
-    .setApplication(getApplication())
-    .setBaseUrl(BuildConfig.HOST_URL)
-    .isCache(false)
-    .isLog(!BuildConfig.isRelease)
-    //添加证书
-    .setCerResId(if (BuildConfig.isRelease) R.raw.release_cloud else R.raw.test_cloud)
-    .setCode(NetWorkCode.NETWORK_SUCCESS)
-    .addInterceptor(HeaderInterceptor())
-    .addInterceptor(ParamInterceptor())
-    .setConnectTimeOut(20)
-    .setReadTimeOut(20)
-    .....
-```
 
