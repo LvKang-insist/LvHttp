@@ -290,3 +290,23 @@ data class ResponseData<T>(val data: T, val code: Int, val errorMsg: String) :
 }
 ```
 
+### 添加证书验证
+
+在初始化的时候调用  setCerResId 即可
+![](https://gitee.com/lvknaginist/pic-go-picure-bed/raw/master/images/20210910155914.png)
+```
+ LvHttp.Builder()
+    .setApplication(getApplication())
+    .setBaseUrl(BuildConfig.HOST_URL)
+    .isCache(false)
+    .isLog(!BuildConfig.isRelease)
+    //添加证书
+    .setCerResId(if (BuildConfig.isRelease) R.raw.release_cloud else R.raw.test_cloud)
+    .setCode(NetWorkCode.NETWORK_SUCCESS)
+    .addInterceptor(HeaderInterceptor())
+    .addInterceptor(ParamInterceptor())
+    .setConnectTimeOut(20)
+    .setReadTimeOut(20)
+    .....
+```
+
