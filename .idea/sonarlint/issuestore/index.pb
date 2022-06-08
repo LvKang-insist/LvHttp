@@ -3,3 +3,23 @@ b
 2net/src/main/java/com/lvhttp/net/error/ErrorKey.kt,c\5\c5d0ef2c8da3717fa8007f2e0fb2c32315b2f34b
 P
  app/src/main/AndroidManifest.xml,8\c\8c55c3ccc257e5907959013f99656e4c8ec3903e
+g
+7net/src/main/java/com/lvhttp/net/error/CodeException.kt,d\a\da62cce960093e3cf9870b834222fa1483bb156b
+d
+4app/src/main/java/com/lvhttp/test/BaseApplication.kt,2\2\22f66b6c0d87856527afafd3c03282d55cea7a89
+i
+9net/src/main/java/com/lvhttp/net/response/BaseResponse.kt,1\7\17529f6699b8da6aeaeabc86bb7f16fdef578fca
+i
+9net/src/main/java/com/lvhttp/net/download/DownResponse.kt,a\c\acfa96721f8c252d0e8c481efc590ea646cc561d
+g
+7net/src/main/java/com/lvhttp/net/download/DownloadKt.kt,1\0\1005d90025985822b7da15ba2898680ef959e0dc
+\
+,app/src/main/java/com/lvhttp/test/Service.kt,a\c\aca0b93f5725b4078b2a6a1d73c6ebf0dc8d02ba
+9
+	README.md,8\e\8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+j
+:app/src/main/java/com/lvhttp/test/response/ResponseData.kt,1\b\1b364e1270cbcdff3fea28545d339dc6339910b8
+a
+1net/src/main/java/com/lvhttp/net/launch/Launch.kt,e\2\e2bbfd1a412389e952eefbeeb16ad9cf9e51670d
+a
+1app/src/main/java/com/lvhttp/test/MainActivity.kt,d\4\d4b19da62ec6e2082dd46718b269adb34fe0cd0d

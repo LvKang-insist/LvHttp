@@ -7,9 +7,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.donkingliang.imageselector.utils.ImageSelector
@@ -25,7 +28,6 @@ import com.lvhttp.net.param.createParts
 import com.lvhttp.net.param.createRequestBody
 import com.lvhttp.net.response.ResultState
 import com.lvhttp.test.response.ResponseData
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.launch
 import java.io.*
 
@@ -36,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        test.setOnClickListener {
+        findViewById<View>(R.id.test).setOnClickListener {
 
             lifecycleScope.launch {
                 launchHttp {
@@ -78,7 +80,7 @@ class MainActivity : AppCompatActivity() {
 //                }
 //            }
         }
-
+        val downloadButton = findViewById<AppCompatButton>(R.id.downloadButton)
         downloadButton.setOnClickListener {
 
             lifecycleScope.launch {
@@ -91,12 +93,12 @@ class MainActivity : AppCompatActivity() {
 
                             @SuppressLint("SetTextI18n")
                             override fun process(process: Float) {
-                                downloadPath.setText("$process %")
+                                downloadButton.setText("$process %")
                             }
 
                             override fun error(e: Exception) {
                                 e.printStackTrace()
-                                downloadPath.setText("下载错误")
+                                downloadButton.setText("下载错误")
                             }
 
                             override fun done(file: File) {
@@ -142,28 +144,30 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 0x0001 && data != null) {
             val array = data.getStringArrayListExtra(ImageSelector.SELECT_RESULT)
-            val file = File(array[0])
-            Log.e("-------", array[0])
+            if (array != null && array.isNotEmpty()) {
+                val file = File(array[0])
+                Log.e("-------", array[0])
 
-
-            Glide.with(this)
-                .load(file)
-                .into(image)
+                Glide.with(this)
+                    .load(file)
+                    .into(findViewById(R.id.image))
 
 
 //            val requestBody = createFileRequestBody(file)
 
-            lifecycleScope.launch {
-                launchHttp {
-                    LvHttp.createApi(Service::class.java)
-                        .postFile(*createParts(mapOf("key" to file, "key2" to file)))
-                }.toData {
-                    Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
-                }.toError {
-                    Toast.makeText(this@MainActivity, "失败", Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch {
+                    launchHttp {
+                        LvHttp.createApi(Service::class.java)
+                            .postFile(*createParts(mapOf("key" to file, "key2" to file)))
+                    }.toData {
+                        Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
+                    }.toError {
+                        Toast.makeText(this@MainActivity, "失败", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
-        }
+            }
+
     }
 
 
