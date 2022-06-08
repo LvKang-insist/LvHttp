@@ -1,6 +1,6 @@
 ### LiveHttp
 
-​	基于 Retrofit + 协程的网络请求组件
+​	基于 Retrofit + 协程的网络请求组件，适用于以 `Kotlin` 开发的项目。
 
 ------
 
@@ -13,9 +13,10 @@
 - 支持自定义 Response，格式参考 ResponseData
 - 支持在请求接口中直接返回 Bean 类。
 - 支持 Ktx 扩展
+- 支持证书验证
 - 完善的状态管理机制，使用非常简单
 
-### 如何使用：
+### 依赖：
 
 ```kotlin
 allprojects {
@@ -28,7 +29,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.LvKang-insist:LvHttp:1.1.5'
+	  implementation 'com.github.LvKang-insist:LvHttp:1.1.9'
 }
 ```
 
@@ -37,19 +38,18 @@ dependencies {
 ```groovy
 //网络请求依赖
     //网络请求依赖
-    implementation "com.squareup.okhttp3:okhttp:4.9.0"
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     //协程基础库
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1"
     //协程 Android 库，提供 UI 调度器
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9"
-
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
     // viewmodel / activity 的ktx扩展
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.1"
 ```
 
 ### 关于混淆
@@ -57,10 +57,6 @@ dependencies {
     -keep class com.lvhttp.net.response.** { *; }
 ```
 如果你自定义了 Response ，那么自定义的那个类也需要混淆，切记
-
-### 关于启动方式
-
-详见 [launch](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/lvhttp/net/launch/Launch.kt)
 
 ### 初始化
 
@@ -74,6 +70,8 @@ LvHttp.Builder()
     .isLoging(true)
 	//初始化请求接口
     .setService(Service::class.java)
+	//验证证书
+    .setCerResId(if (BuildConfig.DEBUG) R.raw.ca_debug else R.raw.ca_release)
 	//对 Code 异常的处理，可自定义,参考 ResponseData 类
     .setErrorDispose(ErrorKey.ErrorCode, ErrorValue {
         Toast.makeText(this, "Code 错误", Toast.LENGTH_SHORT).show()
@@ -88,7 +86,9 @@ LvHttp.Builder()
 
 ------
 
-### Get
+### 使用方式
+
+如果你是在 `Activity` 中或者 `ViewModel` 等地方使用，请在请求的外层加上他们的协程作用域，这样可以有效的解决很多副作用，例如 	`lifecycleScope.launch{}` 、`viewModelScope.launch` 等。
 
 ```kotlin
 /**
@@ -117,6 +117,12 @@ lifecycleScope.launch {
 
 > 需要注意的是，如果请求过程中失败，如果启用了全局异常，那么全局异常和 toError 都会被调用，全局异常可用于吐司提示用户或者异常上报等，toError 可以用于修改 UI 状态等
 
+上面的请求的时候对数据进行了包装，也就是 `ResponseData` ，继承自 `BaseResponse`。
+
+你可以参照自己项目中的统一的数据格式来定制包装类，定义的包装类都需要继承 `BaseResponse` 。这样可以有效的进行 Code 验证等其他的操作。
+
+如果有些接口返回的数据违背了项目规定的数据格式，例如项目中调用了第三方的接口，返回的格式和项目规定的格式不同，则可以采取不添加包装类的写法。在定义请求接口方法的时候直接使用对象即可。如下所示：
+
 ```kotlin
 @GET("wxarticle/chapters/json")
 suspend fun get2(): Bean
@@ -124,7 +130,7 @@ suspend fun get2(): Bean
 如上，支持不添加数据包装类。
 ```kotlin
 lifecycleScope.launch {
-    launchHttpPack {
+    launchHttp {
         LvHttp.createApi(Service::class.java).get2()
     }.toData {
         Toast.makeText(this@MainActivity, "${it.data}", Toast.LENGTH_SHORT).show()
@@ -137,32 +143,6 @@ lifecycleScope.launch {
 如上，即可完成 Get 请求
 
 > 需要注意的是上面使用的是  `launchHttpPack` ，这种方式无包装类，所以无法自动验证 code，
-
-
-### POST
-
-```kotlin
-@FormUrlEncoded
-    @POST("user/login")
-    suspend fun login(
-        @Field("username") userName: String,
-        @Field("password") passWord: String
-    ): ResponseData<Bean>
-```
-
-```kotlin
-lifecycleScope.launch {
-    launchHttp {
-        LvHttp.createApi(Service::class.java).login("15129379467", "147258369")
-    }.toData {
-        Toast.makeText(this@MainActivity, it.data.toString(), Toast.LENGTH_SHORT).show()
-    }.toError {
-        Log.e("---345--->", "${it.printStackTrace()}");
-    }
-    //Stop Loading
-    Toast.makeText(this@MainActivity, "完成", Toast.LENGTH_SHORT).show()
-}
-```
 
 ### 全局异常处理
 在 application 中初始化的时候调用 setErrorDispose 拦截异常，可拦截的异常见 [ErrorKey](https://github.com/LvKang-insist/LvHttp/blob/master/net/src/main/java/com/lvhttp/net/error/ErrorKey.kt) 这个类，
@@ -189,6 +169,8 @@ AllExeption 是所有异常都会调用到这里(不包括code异常)
 
 ### 文件下载
 
+直接返回 `ResponseBody` 即可。库中对 `ResponseBody` 进行了扩展，具体使用方式如下：
+
 ```kotlin
 @Streaming
 @GET("https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz")
@@ -196,31 +178,32 @@ suspend fun download(): ResponseBody
 ```
 
 ```kotlin
-lifecycleScope.launch {
-    launchHttpPack {
-        LvHttp.createApi(Service::class.java).download()
-        .start(object : DownResponse("LvHttp", "chebangyang.apk") {
-            override fun create(size: Float) {
-                Log.e("-------->", "create:总大小 ${(size)} ")
-            }
+ lifecycleScope.launch {
+     launchHttp {
+         LvHttp.createApi(Service::class.java).download()
+         .start(object : DownResponse("LvHttp", "chebangyang.apk") {
+             override fun create(size: Float) {
+                 Log.e("-------->", "create:总大小 ${(size)} ")
+             }
 
-            @SuppressLint("SetTextI18n")
-            override fun process(process: Float) {
-                downloadPath.setText("$process %")
-            }
+             @SuppressLint("SetTextI18n")
+             override fun process(process: Float) {
+                 downloadButton.setText("$process %")
+             }
 
-            override fun error(e: Exception) {
-                e.printStackTrace()
-                downloadPath.setText("下载错误")
-            }
+             override fun error(e: Exception) {
+                 e.printStackTrace()
+                 downloadButton.setText("下载错误")
+             }
 
-            override fun done(file: File) {
-                //完成
-                Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-}
+             override fun done(file: File) {
+                 //完成
+                 Toast.makeText(this@MainActivity, "成功", Toast.LENGTH_SHORT)
+                 .show()
+             }
+         })
+     }
+ }
 ```
 
 其中四个方法可根据需要进行重写
@@ -269,8 +252,6 @@ lifecycleScope.launch {
 }
 ```
 
-
-
 ### 自定义 Response
 
 自定义 Response 需要继承 `BaseResponse`，并且实现 notifyData 方法，如下所示：
@@ -287,3 +268,4 @@ data class ResponseData<T>(val data: T, val code: Int, val errorMsg: String) :
 }
 ```
 
+> 如果您有任何建议或者问题请联系，可直接联系我
