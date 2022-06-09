@@ -67,9 +67,7 @@ LvHttp.Builder()
 	//是否开启缓存
     .isCache(false)
 	//是否打印 log
-    .isLoging(true)
-	//初始化请求接口
-    .setService(Service::class.java)
+    .isLog(true)
 	//验证证书
     .setCerResId(if (BuildConfig.DEBUG) R.raw.ca_debug else R.raw.ca_release)
 	//对 Code 异常的处理，可自定义,参考 ResponseData 类
