@@ -28,11 +28,7 @@ fun <T> LifecycleOwner.zipLaunch(
     lifecycleScope.launch {
         val list = arrayListOf<Deferred<ResultState<T>>>()
         block.forEach {
-            list.add(
-                async {
-                    tryCatch(it)
-                }
-            )
+            list.add(async { tryCatch(it) })
         }
         val data = list.awaitAll()
         launch(Dispatchers.Main) {
